@@ -1,0 +1,186 @@
+local workspace = game:GetService('Workspace')
+local Player = game:GetService('Players').LocalPlayer
+local backpack = Player.Backpack
+
+if not getrawmetatable then
+    error("Exploit nhu c deo ho tro", 0)
+end
+
+local Sea = 0
+if game.PlaceId == 2753915549 then
+    Sea = 1
+elseif game.PlaceId == 4442272183 then
+    Sea = 2
+elseif game.PlaceId == 7449423635 then
+	Sea = 3
+end
+local fruitType = {
+    Random = false, --Done
+    Factory = false, -- Done
+    Natural = false, -- Done
+    DroppedFruit = false, -- Done
+    LoadedFruit = false,--Done
+    PirateRaid = false, -- Done
+    SeaEvent = false,
+    Others = false
+    }
+
+function fileCreate(filename,table)
+        writefile(Player.Name.. "_" ..filename.. ".json", game:GetService('HttpService'):JSONEncode(table))
+end
+
+function sendJson(filename,data)
+    fileCreate(filename,data)
+    local fileData = readfile(Player.Name.. "_" ..filename.. ".json")
+    -- URL avatar
+    local AvatarUrl = "https://i.imgur.com/OBqZkBq.png" -- Thay bằng URL avatar của bạn
+    
+    -- Tạo nội dung body của yêu cầu với multipart/form-data
+    local boundary = "------------------------" .. game:GetService("HttpService"):GenerateGUID(false)
+    local body = "--" .. boundary .. "\r\n"
+        .. "Content-Disposition: form-data; name=\"file\"; filename=\"" .. Player.Name.. "_" ..filename.. ".json" .. "\"\r\n"
+        .. "Content-Type: application/json\r\n\r\n"
+        .. fileData .. "\r\n"
+        .. "--" .. boundary .. "\r\n"
+        .. "Content-Disposition: form-data; name=\"avatar_url\"\r\n\r\n"
+        .. AvatarUrl .. "\r\n"
+        .. "--" .. boundary .. "--"
+    
+    -- Định nghĩa headers
+    local headers = {
+        ["Content-Type"] = "multipart/form-data; boundary=" .. boundary,
+        ["Content-Length"] = tostring(#body),
+    }
+    
+    -- Gửi yêu cầu HTTP
+    local requestFunction = http_request or request or HttpPost
+    if requestFunction then
+        local response = requestFunction({
+            Url = DiscordWebhookUrl,
+            Method = "POST",
+            Headers = headers,
+            Body = body,
+        })
+    
+        -- Hiển thị phản hồi để kiểm tra lỗi hoặc thành công
+        if response then
+            if tonumber(response.StatusCode) < 400 then
+            print("Trạng thái: Successfully Excuted")
+            game:GetService'StarterGui':SetCore("SendNotification", {
+                Title = "Shin dep trai", -- Notification title
+                Text = "Sent Data Successfully", -- Notification text
+                Icon = "https://i.imgur.com/LOkRYqi.png", -- Notification icon (optional)
+                Duration = 5, -- Duration of the notification (optional, may be overridden if more than 3 notifs appear)
+                })
+            else
+            print("Trạng thái: Webhook failed")
+            end
+        else
+            print("Không nhận được phản hồi từ máy chủ.")
+        end
+    else
+        print("Không tìm thấy hàm gửi HTTP!")
+    end
+end
+
+function createTag(instance, Name, Value)
+  instance:SetAttribute(Name,Value)
+end
+
+function getFruitWorkspace(instance) -- Check Fruit tu nhien va fruit drop
+    if instance:FindFirstChild("Fruit") and instance.Name ~= "Fruit " then -- check xem phai fruit da drop ko
+            createTag(instance , "FruitSource", "DroppedFruit")
+        end
+end
+
+function delayTask(taskname)
+    fruitType[taskname] = true
+    task.delay(4, function()
+        fruitType[taskname] = false
+    end)
+end
+
+function checkFruitOrigin(FruitName)
+    task.wait(1.75)
+    if FruitName:FindFirstChild("Fruit") and not FruitName:GetAttribute("Notify") then
+        for i,v in pairs(fruitType) do
+            if v == true and i == "LoadedFruit" then -- Check load fruit
+                createTag(FruitName, "Notify", true)
+                return print((FruitName.Name)..' from: '..i.." Method Print Only")
+
+            elseif v == true then
+                createTag(FruitName, "Notify", true) -- check may cai con lai
+                return sendJson("NewFruit", {Name = (FruitName.Name) , Source = i} ) ,          print((FruitName.Name)..' from: '..i)
+            end
+        end
+        if FruitName:GetAttribute("FruitSource") == nil then -- check fruit tu nhien
+            createTag(FruitName, "Notify", true)
+            return sendJson("NewFruit", {Name = (FruitName.Name) , Source = "Natural"} ) ,      print((FruitName.Name).." tu nhien")
+
+        elseif FruitName:GetAttribute("FruitSource") == "DroppedFruit" then -- check fruit drop
+            createTag(FruitName, "Notify", true)
+            return sendJson("NewFruit", {Name = (FruitName.Name) , Source = "DroppedFruit"} ) , print((FruitName.Name).." duoc drop")
+        end
+    end
+end
+
+----- function get new backpack and character when player die
+function connectChildAdded(character)
+    character.ChildAdded:Connect(checkFruitOrigin)
+    backpack.ChildAdded:Connect(checkFruitOrigin)
+end
+--------
+if Sea == 3 then
+    workspace.Enemies.ChildAdded:Connect(function(Mob) -- Check PirateRaid
+        if Mob:FindFirstChild("HumanoidRootPart") and Mob.HumanoidRootPart:FindFirstChild("TankyParticles") and Mob.Humanoid.Health > 0 then
+            repeat task.wait() until Mob.Humanoid.Health == 0
+            delayTask("PirateRaid")
+        end
+    end)
+end
+
+if Sea == 2 then
+    local FactoryDoor = game:getService('Workspace').Map.Dressrosa.SmileFactory.Door -- Check Factory
+    FactoryDoor.Changed:Connect(function()
+        if FactoryDoor.Transparency == 0 then
+            delayTask("Factory")
+        end
+    end)
+end
+
+local mt = getrawmetatable(game) --- Check load fruit and random fruit
+local oldNamecall = mt.__namecall
+
+setreadonly(mt, false)
+mt.__namecall = newcclosure(function(self, ...)
+    local args = {...}
+    local method = getnamecallmethod()
+
+    if method == "InvokeServer" and self.Name == "CommF_" then
+
+        if args[1] == "Cousin" and args[2] == "Buy" then
+            print('random called')
+            delayTask("Random")
+            
+        elseif args[1] == "LoadFruit" then
+            delayTask("LoadedFruit")
+        end
+    end
+
+    return oldNamecall(self, ...)
+end)
+
+setreadonly(mt, true)
+
+if Player.Character then
+    connectChildAdded(Player.Character)
+end
+Player.CharacterAdded:Connect(connectChildAdded)
+
+for i,v in pairs(workspace:GetChildren()) do -- First check
+    getFruitWorkspace(v)
+end
+workspace.ChildAdded:Connect(function(instance)
+    getFruitWorkspace(instance)
+end)
+print('finally')
