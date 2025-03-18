@@ -14,7 +14,7 @@ elseif game.PlaceId == 4442272183 then
 elseif game.PlaceId == 7449423635 then
 	Sea = 3
 end
-local fruitType = {
+    fruitType = {
     Random = false, --Done
     Factory = false, -- Done
     Natural = false, -- Done
@@ -159,7 +159,6 @@ mt.__namecall = newcclosure(function(self, ...)
     if method == "InvokeServer" and self.Name == "CommF_" then
 
         if args[1] == "Cousin" and args[2] == "Buy" then
-            print('random called')
             delayTask("Random")
             
         elseif args[1] == "LoadFruit" then
