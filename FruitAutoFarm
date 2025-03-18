@@ -6,7 +6,7 @@ _G.Setting    = {
     Team                = "Marines",
     HopServer           = {
         ["Enable"   ]      = true,
-        ["Wait Time"] = 5
+        ["Wait Time"] = 10
     },
     Webhook             = {
         Enable      = false,
