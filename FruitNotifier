@@ -56,7 +56,7 @@ function sendJson(filename,data)
     local requestFunction = http_request or request or HttpPost
     if requestFunction then
         local response = requestFunction({
-            Url = _G.AutoFarmFruitSetting.Webhook.WebhookLink or DiscordWebhookUrl or "",
+            Url = _G.Setting.Webhook.WebhookLink or DiscordWebhookUrl or "",
             Method = "POST",
             Headers = headers,
             Body = body,
