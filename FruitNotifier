@@ -204,4 +204,4 @@ end
 workspace.ChildAdded:Connect(function(instance)
     getFruitWorkspace(instance)
 end)
-print('finally')
+print('Loaded Fruit Notifier')
