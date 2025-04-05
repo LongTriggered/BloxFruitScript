@@ -629,9 +629,8 @@ function start_main_farm()
                                                     status_label:Refresh("Attacking Pirate Raid ")
                                                 end)
                                             until _G.Setting.Enabled == false or not b.Parent or b.Humanoid.Health <= 0
+                                            tp(wait_location * CFrame.new(0,-50,0))
                                         end
-                                    else
-                                        tp(wait_location * CFrame.new(0,-50,0))
                                     end
                                 end
                             else
