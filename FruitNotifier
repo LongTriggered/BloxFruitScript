@@ -140,8 +140,10 @@ if Sea == 3 then
     workspace.Enemies.ChildAdded:Connect(function(Mob) -- Check PirateRaid
         pcall(function()
             if Mob:FindFirstChild("HumanoidRootPart") and Mob:FindFirstChild("Humanoid") and Mob.HumanoidRootPart:FindFirstChild("TankyParticles") and Mob.Humanoid.Health > 0 then
-                repeat task.wait() until Mob.Humanoid.Health == 0
-                delayTask("PirateRaid")
+                spawn(function()
+                    repeat task.wait() until Mob.Humanoid.Health == 0
+                    delayTask("PirateRaid")
+                end)
             end
         end)
     end)
@@ -150,8 +152,10 @@ end
 if Sea == 2 then
     local FactoryDoor = game:getService('Workspace').Map.Dressrosa.SmileFactory.Door -- Check Factory
     if FactoryDoor.Transparency == 1 then
+        spawn(function()
         repeat task.wait() until FactoryDoor.Transparency == 0
         delayTask("Factory")
+        end)
     end
     FactoryDoor.Changed:Connect(function()
         if FactoryDoor.Transparency == 0 then
