@@ -112,6 +112,7 @@ end)
 
 if game:GetService('Players').LocalPlayer.Team == nil then
 game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("SetTeam",tostring(_G.Setting.Team)) 
+print('join team remote called')
 end
 repeat task.wait() until game:GetService('Players').LocalPlayer.Team ~= nil
 repeat task.wait() until game:GetService('Players').LocalPlayer.Character
