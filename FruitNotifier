@@ -1,3 +1,5 @@
+repeat task.wait() until game:IsLoaded()
+
 local workspace = game:GetService('Workspace')
 local Player = game:GetService('Players').LocalPlayer
 local backpack = Player.Backpack
