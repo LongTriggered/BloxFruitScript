@@ -1,7 +1,8 @@
+repeat task.wait() until game:IsLoaded()
 if not _G.Setting then
     _G.Setting    = {
         Enabled             = true,
-        WeaponToAttack      = "FruitM1", -- "Sword", "Melee", "FruitM1"
+        WeaponToAttack      = "Melee", -- "Sword", "Melee", "FruitM1"
         SkipUnder1mFruit    = false,
         SkipFullFruit       = false,
         RandomFruit         = true,
@@ -10,10 +11,10 @@ if not _G.Setting then
         Team                = "Marines",
         HopServer           = {
             ["Enable"   ]      = false,
-            ["Wait Time"] = 30
+            ["Wait Time"] = 60
         },
         Webhook             = {
-            Enable      = false,
+            Enable      = true,
             WebhookLink = ""
         }
     }
@@ -104,17 +105,18 @@ setting_mainui:Toggle("Webhook", _G.Setting.Webhook.Enable, function(bool)
     _G.Setting.Webhook.Enable = bool
 end)
 ---------------- Main function
-repeat task.wait() until game:IsLoaded()
-------------------------------------------------- FruitNotifier
-if _G.Setting.Webhook.Enable == true then
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/LongTriggered/BloxFruitScript/refs/heads/main/FruitNotifier", true))()
-end
--------------------------------------------------
+
 if game:GetService('Players').LocalPlayer.Team == nil then
 game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("SetTeam",tostring(_G.Setting.Team)) 
 end
 repeat task.wait() until game:GetService('Players').LocalPlayer.Team ~= nil
 repeat task.wait() until game:GetService('Players').LocalPlayer.Character
+
+------------------------------------------------- FruitNotifier
+if _G.Setting.Webhook.Enable == true then
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/LongTriggered/BloxFruitScript/refs/heads/main/FruitNotifier", true))()
+end
+-------------------------------------------------
 
 ---VARIABLES
 local workspace = game:GetService('Workspace')
@@ -700,4 +702,5 @@ for i,v in pairs(workspace:GetChildren()) do
         print("Fruit thiet su trong server: "..v.Name.."\n")
     end
 end
+print("Loaded Fruit Auto Farm")
 ingame_notify('Enabled Auto Fruit')
