@@ -1,5 +1,7 @@
 repeat task.wait() until game:IsLoaded()
+local default_config
 if not _G.Setting then
+    default_config = true
     _G.Setting    = {
         Enabled             = true,
         WeaponToAttack      = "Melee", -- "Sword", "Melee", "FruitM1"
@@ -18,6 +20,8 @@ if not _G.Setting then
             WebhookLink = ""
         }
     }
+else
+    default_config = false
 end
 ------------- UI
 local DiscordLib = loadstring(game:HttpGet"https://raw.githubusercontent.com/LongTriggered/BloxFruitScript/refs/heads/main/UILIB")()
@@ -704,3 +708,8 @@ for i,v in pairs(workspace:GetChildren()) do
 end
 print("Loaded Fruit Auto Farm")
 ingame_notify('Enabled Auto Fruit')
+if default_config then
+    ingame_notify('Loaded default config')
+    else
+    ingame_notify('Loaded provided config')
+end
