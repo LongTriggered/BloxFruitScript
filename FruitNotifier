@@ -172,6 +172,7 @@ mt.__namecall = newcclosure(function(self, ...)
     if method == "InvokeServer" and self.Name == "CommF_" then
 
         if args[1] == "Cousin" and args[2] == "Buy" then
+            task.wait(1.5)
             local AllFalse = true
             for i,v in pairs(fruitType) do
                 if v == true then
