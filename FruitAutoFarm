@@ -529,7 +529,7 @@ function hop()
             hop_counting_time = "Waiting to hop server..."..tostring(i).."s"
             task.wait(1)
         end
-        if farming == true then
+        if farming == true or not _G.Setting.HopServer["Enable"] then
             is_hopping = false
             status_label:Refresh("Hopping cancelled")
             return
