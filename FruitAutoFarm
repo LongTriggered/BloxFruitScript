@@ -592,22 +592,22 @@ function start_main_farm()
                                     status_label:Refresh(hop_counting_time)
                                 end
                             end
-
-                        elseif Sea == 3 then
+                        end
+                        if Sea == 3 then
                             local wait_location = CFrame.new(-5140.06445, 316.5, -3001.552)
-                            if (wait_location.Position - character().HumanoidRootPart.Position).Magnitude > 500 then
+                            if (wait_location.Position - character().HumanoidRootPart.Position).Magnitude > 1000 then
                                 game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("requestEntrance", Vector3.new(- 5075.50927734375, 314.5155029296875, - 3150.0224609375))
                                 repeat task.wait()
                                     disable_seat()
                                     tp(wait_location)
                                     status_label:Refresh("Tp to Castle on the sea to check raid mobs")
-                                until (wait_location.Position - character().HumanoidRootPart.Position).Magnitude <= 500 or not _G.Setting.Enabled 
+                                until (wait_location.Position - character().HumanoidRootPart.Position).Magnitude <= 1000 or not _G.Setting.Enabled 
                                 task.wait(0.5)
                             end
                             local enemies = workspace.Enemies:GetChildren()
                             if #enemies > 0 then
                                 for a,b in pairs(enemies) do
-                                    if (b and not b:GetAttribute("IsBoat") and b:FindFirstChild('Humanoid') and b.Humanoid.Health > 0) then
+                                    if not b:GetAttribute("IsBoat") and b:FindFirstChild('Humanoid') and b.Humanoid.Health > 0 then
                                         if (b.HumanoidRootPart.Position-character().HumanoidRootPart.Position).Magnitude <= 1000 then
                                             repeat RunService.Heartbeat:Wait()
                                                 pcall(function()
@@ -650,7 +650,8 @@ function start_main_farm()
                                     status_label:Refresh(hop_counting_time)
                                 end  
                             end
-                        elseif Sea == 1 then
+                        end
+                        if Sea == 1 then
                             farming = false
                             disable_seat()
                             hop()
