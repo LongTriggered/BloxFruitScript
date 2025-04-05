@@ -693,10 +693,6 @@ enable_buso()
 start_main_farm()
 anti_afk()
 
-if _G.Setting.HopServer["Enable"] and queueonteleport then
-	queueonteleport("loadstring(game:HttpGet('https://raw.githubusercontent.com/LongTriggered/BloxFruitScript/refs/heads/main/FruitAutoFarm'))()")
-end
-
 for i,v in pairs(workspace:GetChildren()) do
     if v:FindFirstChild('Fruit') then
         print("Fruit thiet su trong server: "..v.Name.."\n")
