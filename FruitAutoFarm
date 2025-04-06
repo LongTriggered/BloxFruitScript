@@ -431,7 +431,7 @@ function hit(hitPart)
         if _G.Setting.WeaponToAttack == "FruitM1" and currentEquippedWeapon then
                 currentEquippedWeapon:FindFirstChild('LeftClickRemote'):FireServer(character().HumanoidRootPart.CFrame.LookVector, 2)
         else
-            register_attack:FireServer(1e-15)
+            register_attack:FireServer(1e-9)
             register_hit:FireServer(hitPart, {})           
         end
     end
@@ -609,7 +609,7 @@ function start_main_farm()
                                 for a,b in pairs(enemies) do
                                     if not b:GetAttribute("IsBoat") and b:FindFirstChild('Humanoid') and b.Humanoid.Health > 0 then
                                         if (b.HumanoidRootPart.Position-character().HumanoidRootPart.Position).Magnitude <= 1000 then
-                                            repeat RunService.Heartbeat:Wait()
+                                            repeat task.wait(1e-9)
                                                 pcall(function()
                                                     farming = true
                                                     set_property()
@@ -618,14 +618,11 @@ function start_main_farm()
                                                     disable_seat()
                                                     b.Humanoid.WalkSpeed = 0
                                                     b.Humanoid.JumpPower = 0
+                                                    hit(b.UpperTorso)
                                                     if b.HumanoidRootPart:FindFirstChild('TankyParticles') then
                                                         tp(b.HumanoidRootPart.CFrame * CFrame.new(0, -20, 0),_G.Setting.InstantTp)
-                                                        for i = 1, 10 do
-                                                            hit(b.UpperTorso)
-                                                        end
                                                     else
                                                         tp(b.HumanoidRootPart.CFrame * CFrame.new(0, -20, 0))
-                                                        hit(b.UpperTorso)
                                                     end
                                                     status_label:Refresh("Attacking Pirate Raid ")
                                                 end)
