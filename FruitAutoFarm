@@ -248,7 +248,7 @@ function random_fruit()
     task.wait(1)
     replicatedstorage.Remotes.CommF_:InvokeServer("Cousin","Buy")
     task.spawn(function()
-        while task.wait(10) do
+        while task.wait(1) do
             if _G.Setting.RandomFruit and _G.Setting.Enabled then
                 replicatedstorage.Remotes.CommF_:InvokeServer("Cousin","Buy")
             end
