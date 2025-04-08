@@ -160,7 +160,8 @@ if Sea == 2 then
         end
     end)
 end
-
+local last_random_delaytask = 0
+local random_cooldown = 5
 local mt = getrawmetatable(game) --- Check load fruit and random fruit
 local oldNamecall = mt.__namecall
 
@@ -170,20 +171,21 @@ mt.__namecall = newcclosure(function(self, ...)
     local method = getnamecallmethod()
 
     if method == "InvokeServer" and self.Name == "CommF_" then
-
         if args[1] == "Cousin" and args[2] == "Buy" then
-            local AllFalse = true
-            for i,v in pairs(fruitType) do
+            local allFalse = true
+            for _, v in pairs(fruitType) do
                 if v == true then
-                    AllFalse = false
+                    allFalse = false
                     break
                 end
             end
-            if AllFalse then
-            delayTask("Random")
+            if allFalse and tick() - last_random_delaytask > random_cooldown then
+                delayTask("Random")
+                last_random_delaytask = tick()
             end
-            
-        elseif args[1] == "LoadFruit" then
+        end
+
+        if args[1] == "LoadFruit" then
             delayTask("LoadedFruit")
         end
     end
@@ -204,4 +206,4 @@ end
 workspace.ChildAdded:Connect(function(instance)
     getFruitWorkspace(instance)
 end)
-print('Loaded Fruit Notifier')
+print('Loaded Fruit Notifier v1.0')
