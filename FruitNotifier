@@ -98,13 +98,12 @@ end
 
 function delayTask(taskname)
     fruitType[taskname] = true
-    task.delay(1.5, function()
+    task.wait(0.005)
     fruitType[taskname] = false
-    end)
 end
 
 function checkFruitOrigin(FruitName)
-    task.wait(1)
+    task.wait()
     if FruitName:FindFirstChild("Fruit") and not FruitName:GetAttribute("Notify") then
         for i,v in pairs(fruitType) do
             if i == "LoadedFruit" and v == true then -- Check load fruit
@@ -206,4 +205,4 @@ end
 workspace.ChildAdded:Connect(function(instance)
     getFruitWorkspace(instance)
 end)
-print('Loaded Fruit Notifier v1.0')
+print('Loaded Fruit Notifier v1.01')
