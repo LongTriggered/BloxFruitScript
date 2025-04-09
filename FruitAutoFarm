@@ -182,6 +182,11 @@ function random_fruit()
         end
         while task.wait(10) do
             if _G.Setting.RandomFruit and _G.Setting.Enabled then
+                for _, v in pairs(fruitType) do
+                    if v == true then
+                        repeat task.wait() until v == false
+                    end
+                end
                 replicatedstorage.Remotes.CommF_:InvokeServer("Cousin","Buy")
             end
         end
@@ -503,21 +508,21 @@ function start_main_farm()
                         if Sea == 2 then
                             if workspace.Enemies:FindFirstChild("Core") then
                                 for a,b in pairs(workspace.Enemies:GetChildren()) do
-                                    repeat task.wait(1e-9)
-                                        pcall(function()
-                                            if b.Name == "Core" and b:FindFirstChild('Humanoid') and b.Humanoid.Health > 0 then  
-                                                farming = true                              
-                                                set_property()
-                                                tp(CFrame.new(426.444153, 182.586456, -429.883057))
-                                                hit(b.UpperTorso)
-                                                equip_tool()
-                                                enable_buso()
-                                                disable_seat()
-                                                status_label:Refresh("Attacking Factory ")
-                                            end
-                                        end)
-                                    until _G.Setting.Enabled == false or not b.Parent or b.Humanoid.Health <= 0
-                                    delayTask("Factory",1)
+                                    if b.Name == "Core" and b:FindFirstChild('Humanoid') and b.Humanoid.Health > 0 then 
+                                        repeat task.wait(1e-9)
+                                            pcall(function()
+                                                    farming = true                              
+                                                    set_property()
+                                                    tp(CFrame.new(426.444153, 182.586456, -429.883057))
+                                                    hit(b.UpperTorso)
+                                                    equip_tool()
+                                                    enable_buso()
+                                                    disable_seat()
+                                                    status_label:Refresh("Attacking Factory ")
+                                            end)
+                                        until _G.Setting.Enabled == false or not b.Parent or b.Humanoid.Health <= 0
+                                        delayTask("Factory",1)
+                                    end
                                 end
                             else
                                 farming = false
@@ -657,18 +662,8 @@ mt.__namecall = newcclosure(function(self, ...)
 
     if method == "InvokeServer" and self.Name == "CommF_" then
         if args[1] == "Cousin" and args[2] == "Buy" then
-            local allFalse = true
-            for _, v in pairs(fruitType) do
-                if v == true then
-                    allFalse = false
-                    break
-                end
-            end
-            if allFalse then
                 delayTask("Random",1)
-            end
         end
-
         if args[1] == "LoadFruit" then
             delayTask("LoadedFruit",1)
         end
