@@ -707,12 +707,12 @@ mt.__namecall = newcclosure(function(self, ...)
                 end
             end
             if allFalse then
-                delayTask("Random")
+                delayTask("Random",1)
             end
         end
 
         if args[1] == "LoadFruit" then
-            delayTask("LoadedFruit")
+            delayTask("LoadedFruit",1)
         end
     end
 
