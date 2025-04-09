@@ -23,21 +23,17 @@ if not _G.Setting then
 else
     default_config = false
 end
-------------- UI
-local DiscordLib = loadstring(game:HttpGet"https://raw.githubusercontent.com/LongTriggered/BloxFruitScript/refs/heads/main/UILIB")()
+---------------- Main function
 
-local win = DiscordLib:Window("Shin Fully Fruit Auto Farm ( dawid#7205's UI Library)")
+if game:GetService('Players').LocalPlayer.Team == nil then
+game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("SetTeam",tostring(_G.Setting.Team)) 
+print('join team remote called')
+end
 
-local serv = win:Server("Status", "imagelink")
+repeat task.wait() until game:GetService('Players').LocalPlayer.Team ~= nil
+repeat task.wait() until game:GetService('Players').LocalPlayer.Character
 
-local lbls = serv:Channel("Main Status")
-
-status_label = lbls:Label("Shin dep trai",Color3.fromRGB(255, 204, 255))
-
-
-local mainui = win:Server("Main", "http://www.roblox.com/asset/?id=6031075938")
-local channel_mainui = mainui:Channel("Auto Farm")
-
+---VARIABLES
 local Sea = 0
 if game.PlaceId == 2753915549 then
     Sea = 1
@@ -47,83 +43,6 @@ elseif game.PlaceId == 7449423635 then
 	Sea = 3
 end
 
-local sea_teleport_remote = {
-    [1] = "TravelMain",
-    [2] = "TravelDressrosa",
-    [3] = "TravelZou"
-}
-
-channel_mainui:Toggle("Auto Farm Fruit", _G.Setting.Enabled, function(bool)
-    _G.Setting.Enabled = bool
-    if not bool then
-        task.wait(0.5)
-        stop_tween()
-    end
-end)
-
-channel_mainui:Toggle("White Screen", _G.Setting.WhiteScreen, function(bool)
-    _G.Setting.WhiteScreen = bool
-    RunService:Set3dRenderingEnabled(not bool)
-end)
-
-for i = 1,3 do
-    if i ~= Sea then
-        channel_mainui:Button("Teleport to Sea "..i, function()
-            game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer(sea_teleport_remote[i])
-        end)
-    end
-end
-
-
-local setting_mainui = mainui:Channel("Settings")
-
-setting_mainui:Dropdown("Weapon to attack", {"Melee", "Blox Fruit ( Fruit M1 )", "Sword"}, function(bool)
-    if bool == "Blox Fruit ( Fruit M1 )" then
-        _G.Setting.WeaponToAttack = "FruitM1"
-    else
-        _G.Setting.WeaponToAttack = bool
-    end
-end)
-
-setting_mainui:Toggle("Skip 1m Fruits", _G.Setting.SkipUnder1mFruit, function(bool)
-    _G.Setting.SkipUnder1mFruit = bool
-end)
-
-setting_mainui:Toggle("Skip full storage fruit", _G.Setting.SkipFullFruit, function(bool)
-    _G.Setting.SkipFullFruit = bool
-end)
-
-setting_mainui:Toggle("Random fruit", _G.Setting.RandomFruit, function(bool)
-    _G.Setting.RandomFruit = bool
-end)
-
-setting_mainui:Toggle("Hop Server", _G.Setting.HopServer["Enable"], function(bool)
-    _G.Setting.HopServer["Enable"] = bool
-end)
-
-setting_mainui:Toggle("Instant TP (risk)", _G.Setting.InstantTp, function(bool)
-    _G.Setting.InstantTp = bool
-end)
-
-setting_mainui:Toggle("Webhook", _G.Setting.Webhook.Enable, function(bool)
-    _G.Setting.Webhook.Enable = bool
-end)
----------------- Main function
-
-if game:GetService('Players').LocalPlayer.Team == nil then
-game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("SetTeam",tostring(_G.Setting.Team)) 
-print('join team remote called')
-end
-repeat task.wait() until game:GetService('Players').LocalPlayer.Team ~= nil
-repeat task.wait() until game:GetService('Players').LocalPlayer.Character
-
-------------------------------------------------- FruitNotifier
-if _G.Setting.Webhook.Enable == true then
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/LongTriggered/BloxFruitScript/refs/heads/main/FruitNotifier", true))()
-end
--------------------------------------------------
-
----VARIABLES
 local workspace = game:GetService('Workspace')
 local Player    = game:GetService('Players').LocalPlayer
 local replicatedstorage = game:GetService("ReplicatedStorage")
@@ -175,6 +94,17 @@ local fruit_ids = {
     ["Kitsune Fruit"] = "rbxassetid://15482881956",
     ["Dragon Fruit"] = "rbxassetid://115237822212661"
 }
+
+local fruitType = {
+    Random = false, --Done
+    Factory = false, -- Done
+    Natural = false, -- Done
+    DroppedFruit = false, -- Done
+    LoadedFruit = false,--Done
+    PirateRaid = false, -- Done
+    SeaEvent = false,
+    Others = false
+    }
 
 function create_tag(instance, Name, Value)
     instance:SetAttribute(Name,Value)
@@ -245,11 +175,11 @@ function get_naturalfruit_name()
 end
 
 function random_fruit()
-    task.wait(1)
-    if _G.Setting.RandomFruit then
-        replicatedstorage.Remotes.CommF_:InvokeServer("Cousin","Buy")
-    end
     task.spawn(function()
+        task.wait(1)
+        if _G.Setting.RandomFruit then
+            replicatedstorage.Remotes.CommF_:InvokeServer("Cousin","Buy")
+        end
         while task.wait(10) do
             if _G.Setting.RandomFruit and _G.Setting.Enabled then
                 replicatedstorage.Remotes.CommF_:InvokeServer("Cousin","Buy")
@@ -385,6 +315,74 @@ end
 --     return value
 -- end
 
+function delayTask(taskname,time)
+    fruitType[taskname] = true
+    task.wait(time)
+    fruitType[taskname] = false
+end
+
+function createTag(instance, Name, Value)
+    instance:SetAttribute(Name, Value)
+  end
+
+function fileCreate(filename,table)
+    writefile(Player.Name.. "_" ..filename.. ".json", game:GetService('HttpService'):JSONEncode(table))
+end
+
+function sendJson(filename,data)
+    fileCreate(filename,data)
+    local fileData = readfile(Player.Name.. "_" ..filename.. ".json")
+    -- URL avatar
+    local AvatarUrl = "https://i.imgur.com/OBqZkBq.png" -- Thay bằng URL avatar của bạn
+
+    -- Tạo nội dung body của yêu cầu với multipart/form-data
+    local boundary = "------------------------" .. game:GetService("HttpService"):GenerateGUID(false)
+    local body = "--" .. boundary .. "\r\n"
+        .. "Content-Disposition: form-data; name=\"file\"; filename=\"" .. Player.Name.. "_" ..filename.. ".json" .. "\"\r\n"
+        .. "Content-Type: application/json\r\n\r\n"
+        .. fileData .. "\r\n"
+        .. "--" .. boundary .. "\r\n"
+        .. "Content-Disposition: form-data; name=\"avatar_url\"\r\n\r\n"
+        .. AvatarUrl .. "\r\n"
+        .. "--" .. boundary .. "--"
+
+    -- Định nghĩa headers
+    local headers = {
+        ["Content-Type"] = "multipart/form-data; boundary=" .. boundary,
+        ["Content-Length"] = tostring(#body),
+    }
+
+    -- Gửi yêu cầu HTTP
+    local requestFunction = http_request or request or HttpPost
+    if requestFunction then
+        local response = requestFunction({
+            Url = _G.Setting.Webhook.WebhookLink or DiscordWebhookUrl or "",
+            Method = "POST",
+            Headers = headers,
+            Body = body,
+        })
+
+        -- Hiển thị phản hồi để kiểm tra lỗi hoặc thành công
+        if response then
+            if tonumber(response.StatusCode) < 400 then
+            print("Trạng thái: Successfully Excuted")
+            game:GetService'StarterGui':SetCore("SendNotification", {
+                Title = "Shin dep trai", -- Notification title
+                Text = "Sent Data Successfully", -- Notification text
+                Icon = "https://i.imgur.com/LOkRYqi.png", -- Notification icon (optional)
+                Duration = 5, -- Duration of the notification (optional, may be overridden if more than 3 notifs appear)
+                })
+            else
+            print("Trạng thái: Webhook failed")
+            end
+        else
+            print("Không nhận được phản hồi từ máy chủ.")
+        end
+    else
+        print("Không tìm thấy hàm gửi HTTP!")
+    end
+end
+
 function store_fruit(FruitName)
     pcall(function()
         task.wait(1)
@@ -410,7 +408,7 @@ function set_property()
     sethiddenproperty(Player,"SimulationRadius",math.huge)
 end
 
-currentEquippedWeapon = nil
+local currentEquippedWeapon = nil
 function equip_tool()
     for i,v in pairs(backpack:GetChildren()) do
         if v:IsA("Tool") then
@@ -439,9 +437,9 @@ function hit(hitPart)
     end
 end
 
-farming = false
-is_hopping = false
-hop_counting_time = "Getting hopserver data"
+local farming = false
+local is_hopping = false
+local hop_counting_time = "Getting hopserver data"
 function hop()
     if not _G.Setting.HopServer["Enable"] or is_hopping then
         return
@@ -540,22 +538,28 @@ function start_main_farm()
                                 status_label:Refresh("Teleporting to "..v.Name)
                             end)
                         until _G.Setting.Enabled == false or not v or v.Parent ~= workspace
+                        if not v:FindFirstChild("EatRemote") then
+                            delayTask("Natural",1)
+                        end
                     else
                         if Sea == 2 then
                             if workspace.Enemies:FindFirstChild("Core") then
                                 for a,b in pairs(workspace.Enemies:GetChildren()) do
-                                    pcall(function()
-                                        if b.Name == "Core" and b:FindFirstChild('Humanoid') and b.Humanoid.Health > 0 then  
-                                            farming = true                              
-                                            set_property()
-                                            tp(CFrame.new(426.444153, 182.586456, -429.883057))
-                                            hit(b.UpperTorso)
-                                            equip_tool()
-                                            enable_buso()
-                                            disable_seat()
-                                            status_label:Refresh("Attacking Factory ")
-                                        end
-                                    end)
+                                    repeat task.wait(1e-9)
+                                        pcall(function()
+                                            if b.Name == "Core" and b:FindFirstChild('Humanoid') and b.Humanoid.Health > 0 then  
+                                                farming = true                              
+                                                set_property()
+                                                tp(CFrame.new(426.444153, 182.586456, -429.883057))
+                                                hit(b.UpperTorso)
+                                                equip_tool()
+                                                enable_buso()
+                                                disable_seat()
+                                                status_label:Refresh("Attacking Factory ")
+                                            end
+                                        end)
+                                    until _G.Setting.Enabled == false or not b.Parent or b.Humanoid.Health <= 0
+                                    delayTask("Factory",1)
                                 end
                             else
                                 farming = false
@@ -608,7 +612,11 @@ function start_main_farm()
                                                     status_label:Refresh("Attacking Pirate Raid ")
                                                 end)
                                             until _G.Setting.Enabled == false or not b.Parent or b.Humanoid.Health <= 0
-                                            tp(wait_location * CFrame.new(0,-50,0))
+                                            if not b.HumanoidRootPart:FindFirstChild('TankyParticles') then
+                                                tp(wait_location * CFrame.new(0,-50,0))
+                                                else
+                                                delayTask("PirateRaid",1)
+                                            end
                                         end
                                     end
                                 end
@@ -650,7 +658,185 @@ function start_main_farm()
         end
     end)
 end
--------------------
+
+------------------------------------------------- FruitNotifier
+if _G.Setting.Webhook.Enable == true then
+
+    function getFruitWorkspace(instance) -- Check Fruit tu nhien va fruit drop
+        if instance:FindFirstChild("Fruit") and instance:FindFirstChild('EatRemote') then -- check xem phai fruit da drop ko
+            createTag(instance , "FruitSource", "DroppedFruit")
+        end
+    end
+
+    function checkFruitOrigin(FruitName)
+        task.wait(0.7)
+        if FruitName:FindFirstChild("Fruit") and not FruitName:GetAttribute("Notify") then
+            for i,v in pairs(fruitType) do
+                if i == "LoadedFruit" and v == true then -- Check load fruit
+                    createTag(FruitName, "Notify", true)
+                    return print((FruitName.Name)..' from: '..i.." Method Print Only")
+    
+                elseif v == true then
+                    createTag(FruitName, "Notify", true) -- check may cai con lai
+                    return sendJson("NewFruit", {Name = (FruitName.Name) , Source = i} ) ,          print((FruitName.Name)..' from: '..i)
+                end
+            end
+
+            if FruitName:GetAttribute("FruitSource") == "DroppedFruit" then -- check fruit drop
+                createTag(FruitName, "Notify", true)
+                return sendJson("NewFruit", {Name = (FruitName.Name) , Source = "DroppedFruit"} ) , print((FruitName.Name).." duoc drop")
+            end
+        end
+    end
+
+    local mt = getrawmetatable(game) --- Check load fruit and random fruit
+local oldNamecall = mt.__namecall
+
+setreadonly(mt, false)
+mt.__namecall = newcclosure(function(self, ...)
+    local args = {...}
+    local method = getnamecallmethod()
+
+    if method == "InvokeServer" and self.Name == "CommF_" then
+        if args[1] == "Cousin" and args[2] == "Buy" then
+            local allFalse = true
+            for _, v in pairs(fruitType) do
+                if v == true then
+                    allFalse = false
+                    break
+                end
+            end
+            if allFalse then
+                delayTask("Random")
+            end
+        end
+
+        if args[1] == "LoadFruit" then
+            delayTask("LoadedFruit")
+        end
+    end
+
+    return oldNamecall(self, ...)
+end)
+
+setreadonly(mt, true)
+
+    local characterConnection
+    local backpackConnection
+
+    function connectChildAdded()
+        if characterConnection then
+            characterConnection:Disconnect()
+        end
+        if backpackConnection then
+            backpackConnection:Disconnect()
+        end
+        
+        local character = Player.Character
+        if character then
+            characterConnection = character.ChildAdded:Connect(checkFruitOrigin)
+        end
+
+        local backpack = Player.Backpack
+        if backpack then
+            backpackConnection = backpack.ChildAdded:Connect(checkFruitOrigin)
+        end
+    end
+
+    Player.CharacterAdded:Connect(function()
+        connectChildAdded()
+    end)
+
+    if Player.Character then
+        connectChildAdded()
+    end
+
+
+    for i,v in pairs(workspace:GetChildren()) do -- First check
+        getFruitWorkspace(v)
+    end
+    workspace.ChildAdded:Connect(function(instance)
+        getFruitWorkspace(instance)
+    end)
+    print('Loaded Fruit Notifier v1.01')
+end
+
+------------- UI
+local DiscordLib = loadstring(game:HttpGet"https://raw.githubusercontent.com/LongTriggered/BloxFruitScript/refs/heads/main/UILIB")()
+
+local win = DiscordLib:Window("Shin Fully Fruit Auto Farm ( dawid#7205's UI Library)")
+
+local serv = win:Server("Status", "imagelink")
+
+local lbls = serv:Channel("Main Status")
+
+status_label = lbls:Label("Shin dep trai",Color3.fromRGB(255, 204, 255))
+
+
+local mainui = win:Server("Main", "http://www.roblox.com/asset/?id=6031075938")
+local channel_mainui = mainui:Channel("Auto Farm")
+
+channel_mainui:Toggle("Auto Farm Fruit", _G.Setting.Enabled, function(bool)
+    _G.Setting.Enabled = bool
+    if not bool then
+        task.wait(0.5)
+        stop_tween()
+    end
+end)
+
+channel_mainui:Toggle("White Screen", _G.Setting.WhiteScreen, function(bool)
+    _G.Setting.WhiteScreen = bool
+    RunService:Set3dRenderingEnabled(not bool)
+end)
+
+local sea_teleport_remote = {
+    [1] = "TravelMain",
+    [2] = "TravelDressrosa",
+    [3] = "TravelZou"
+}
+
+for i = 1,3 do
+    if i ~= Sea then
+        channel_mainui:Button("Teleport to Sea "..i, function()
+            game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer(sea_teleport_remote[i])
+        end)
+    end
+end
+
+local setting_mainui = mainui:Channel("Settings")
+
+setting_mainui:Dropdown("Weapon to attack", {"Melee", "Blox Fruit ( Fruit M1 )", "Sword"}, function(bool)
+    if bool == "Blox Fruit ( Fruit M1 )" then
+        _G.Setting.WeaponToAttack = "FruitM1"
+    else
+        _G.Setting.WeaponToAttack = bool
+    end
+end)
+
+setting_mainui:Toggle("Skip 1m Fruits", _G.Setting.SkipUnder1mFruit, function(bool)
+    _G.Setting.SkipUnder1mFruit = bool
+end)
+
+setting_mainui:Toggle("Skip full storage fruit", _G.Setting.SkipFullFruit, function(bool)
+    _G.Setting.SkipFullFruit = bool
+end)
+
+setting_mainui:Toggle("Random fruit", _G.Setting.RandomFruit, function(bool)
+    _G.Setting.RandomFruit = bool
+end)
+
+setting_mainui:Toggle("Hop Server", _G.Setting.HopServer["Enable"], function(bool)
+    _G.Setting.HopServer["Enable"] = bool
+end)
+
+setting_mainui:Toggle("Instant TP (risk)", _G.Setting.InstantTp, function(bool)
+    _G.Setting.InstantTp = bool
+end)
+
+setting_mainui:Toggle("Webhook", _G.Setting.Webhook.Enable, function(bool)
+    _G.Setting.Webhook.Enable = bool
+end)
+
 Player.CharacterAdded:Connect(function(char) -- Refresh character với backpack khi player die
     new_fruit_added(char)
     new_fruit_added(Player:FindFirstChild("Backpack"))
@@ -666,7 +852,6 @@ end
 workspace.ChildAdded:Connect(function()
     get_naturalfruit_name()
 end)
--------------------
 get_naturalfruit_name()
 random_fruit()
 noclip()
