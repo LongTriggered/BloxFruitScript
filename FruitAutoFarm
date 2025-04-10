@@ -1,4 +1,7 @@
-repeat task.wait() until game:IsLoaded()
+if not game:IsLoaded() then
+    game.Loaded:Wait()
+end
+
 local default_config
 if not _G.Setting then
     default_config = true
@@ -11,46 +14,21 @@ if not _G.Setting then
         InstantTp           = true,
         WhiteScreen         = false,
         Team                = "Marines",
-        HopServer           = {
-            ["Enable"   ]      = false,
-            ["Wait Time"] = 60
-        },
-        Webhook             = {
-            Enable      = true,
-            WebhookLink = ""
-        }
+        HopServer           = { ["Enable"] = false  , ["Wait Time"]     = 60    },
+        Webhook             = { ["Enable"] = true   , ["WebhookLink"]   = ""    }
     }
 else
     default_config = false
 end
----------------- Main function
-
-if game:GetService('Players').LocalPlayer.Team == nil then
-game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("SetTeam",tostring(_G.Setting.Team)) 
-print('join team remote called')
-end
-
-repeat task.wait() until game:GetService('Players').LocalPlayer.Team ~= nil
-repeat task.wait() until game:GetService('Players').LocalPlayer.Character
-
----VARIABLES
-local Sea = 0
-if game.PlaceId == 2753915549 then
-    Sea = 1
-elseif game.PlaceId == 4442272183 then
-    Sea = 2
-elseif game.PlaceId == 7449423635 then
-	Sea = 3
-end
-
-local workspace = game:GetService('Workspace')
-local Player    = game:GetService('Players').LocalPlayer
+---------------- variables
+local workspace         = game:GetService('Workspace')
+local PlayerService     = game:GetService('Players')
 local replicatedstorage = game:GetService("ReplicatedStorage")
-local FruitCap  = Player.Data.FruitCap.Value
-local backpack  = Player.Backpack
-local TeleportService = game:GetService("TeleportService")
-local HttpService = game:GetService("HttpService")
-local RunService = game:GetService("RunService")
+local TeleportService   = game:GetService("TeleportService")
+local HttpService       = game:GetService("HttpService")
+local RunService        = game:GetService("RunService")
+local Player            = PlayerService.LocalPlayer
+
 local fruit_ids = {
     ["Rocket Fruit"] = "rbxassetid://15060012861",
     ["Spin Fruit"] = "rbxassetid://15057683975",
@@ -94,7 +72,6 @@ local fruit_ids = {
     ["Kitsune Fruit"] = "rbxassetid://15482881956",
     ["Dragon Fruit"] = "rbxassetid://115237822212661"
 }
-
 local fruitType = {
     Random = false, --Done
     Factory = false, -- Done
@@ -104,7 +81,27 @@ local fruitType = {
     PirateRaid = false, -- Done
     SeaEvent = false,
     Others = false
-    }
+}
+
+if Player.Team == nil then
+    game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("SetTeam", tostring(_G.Setting.Team)) 
+    print('remote join team called')
+end
+
+repeat task.wait() until game:GetService('Players').LocalPlayer.Team ~= nil
+repeat task.wait() until game:GetService('Players').LocalPlayer.Character
+
+local FruitCap          = Player.Data.FruitCap.Value
+local backpack          = Player.Backpack
+local Sea = 0
+if game.PlaceId == 2753915549 then
+    Sea = 1
+elseif game.PlaceId == 4442272183 then
+    Sea = 2
+elseif game.PlaceId == 7449423635 then
+	Sea = 3
+end
+
 
 function create_tag(instance, Name, Value)
     instance:SetAttribute(Name,Value)
@@ -124,13 +121,13 @@ function get_inventory()
 end
 
 local notify_module = require(game:GetService("ReplicatedStorage").Notification)
-function ingame_notify(string)
-    notify_module.new("<Color=Yellow>"..string.."<Color=/>"):Display()
+function ingame_notify(msg)
+    notify_module.new("<Color=Yellow>"..msg.."<Color=/>"):Display()
 end
 
 function skip_fruit(FruitName) -- 0 = common, 1 = uncommon, 2 = rare, 3 = legendary, 4 = mythical 
     if _G.Setting.SkipFullFruit or _G.Setting.SkipUnder1mFruit then
-        for i,v in pairs(get_inventory()) do
+        for _,v in pairs(get_inventory()) do
             if v.Type == "Blox Fruit" then
                 if v.Name == reword_fruit(FruitName) then -- vd: Doi "Spider Fruit" -> "Spider-Spider"
                     
@@ -153,7 +150,7 @@ function skip_fruit(FruitName) -- 0 = common, 1 = uncommon, 2 = rare, 3 = legend
     return false
 end
 
-function get_naturalfruit_name()
+function updateNaturalFruitNames()
     for i,v in pairs(workspace:GetChildren()) do
         if v:FindFirstChild('Fruit') and not v:FindFirstChild('EatRemote') then -- fruit tu nhien
             local found_fruit_name = false
@@ -303,7 +300,7 @@ function noclip()
     RunService.Stepped:Connect(function()
         if _G.Setting.Enabled then
             for _, Item in pairs(character():GetDescendants()) do
-                if Item:IsA("BasePart") and Item.CanCollide then
+                if Item:IsA("BasePart") then
                     Item.CanCollide = false
                 end
             end
@@ -449,6 +446,7 @@ function hop()
     if not _G.Setting.HopServer["Enable"] or is_hopping then
         return
     end
+
     local function serverhop_function()
         local servers = {}
         local req = http_request({Url = string.format("https://games.roblox.com/v1/games/%d/servers/Public?sortOrder=Desc&limit=100&excludeFullGames=true", game.PlaceId)})
@@ -466,12 +464,14 @@ function hop()
             game:GetService('TeleportService'):TeleportToPlaceInstance(game.PlaceId, servers[math.random(1, #servers)], game.Players.LocalPlayer)
         end
     end
+
     is_hopping = true
     spawn(function()
         for i = _G.Setting.HopServer["Wait Time"] , 0, -1 do
             hop_counting_time = "Waiting to hop server..."..tostring(i).."s"
             task.wait(1)
         end
+
         if farming == true or not _G.Setting.HopServer["Enable"] then
             is_hopping = false
             status_label:Refresh("Hopping cancelled")
@@ -653,26 +653,26 @@ if _G.Setting.Webhook.Enable == true then
     end
 
     local mt = getrawmetatable(game) --- Check load fruit and random fruit
-local oldNamecall = mt.__namecall
+    local oldNamecall = mt.__namecall
 
-setreadonly(mt, false)
-mt.__namecall = newcclosure(function(self, ...)
-    local args = {...}
-    local method = getnamecallmethod()
+    setreadonly(mt, false)
+    mt.__namecall = newcclosure(function(self, ...)
+        local args = {...}
+        local method = getnamecallmethod()
 
-    if method == "InvokeServer" and self.Name == "CommF_" then
-        if args[1] == "Cousin" and args[2] == "Buy" then
-                delayTask("Random",1)
+        if method == "InvokeServer" and self.Name == "CommF_" then
+            if args[1] == "Cousin" and args[2] == "Buy" then
+                    delayTask("Random",1)
+            end
+            if args[1] == "LoadFruit" then
+                delayTask("LoadedFruit",1)
+            end
         end
-        if args[1] == "LoadFruit" then
-            delayTask("LoadedFruit",1)
-        end
-    end
 
-    return oldNamecall(self, ...)
-end)
+        return oldNamecall(self, ...)
+    end)
 
-setreadonly(mt, true)
+    setreadonly(mt, true)
 
     local characterConnection
     local backpackConnection
@@ -712,6 +712,7 @@ setreadonly(mt, true)
         getFruitWorkspace(instance)
     end)
     print('Loaded Fruit Notifier v1.01')
+
 end
 
 ------------- UI
@@ -803,9 +804,10 @@ if Player.Character then -- lần đầu
 end
 
 workspace.ChildAdded:Connect(function()
-    get_naturalfruit_name()
+    updateNaturalFruitNames()
 end)
-get_naturalfruit_name()
+
+updateNaturalFruitNames()
 random_fruit()
 noclip()
 check_tp()
