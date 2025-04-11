@@ -117,10 +117,10 @@ function delayTask(taskname)
     spawn(function()
     fruitType[taskname] = true
     print('delayed '..taskname)
+    end)
     task.wait(1.7)
     print('finish delayed '.. taskname)
     fruitType[taskname] = false
-    end)
 end
 
 function character()
@@ -411,7 +411,6 @@ end
 function new_fruit_added(container)
     container.ChildAdded:Connect(function(child)
         if _G.Setting.Webhook.Enable then
-            task.wait(0.1)
             checkFruitOrigin(child)
         end
         store_fruit(child)
@@ -654,7 +653,8 @@ if _G.Setting.Webhook.Enable then
             print('checking.'..FruitName.Name)
             if FruitName:FindFirstChild("Fruit") and not FruitName:GetAttribute("Notify") then
                 for i,v in ipairs(fruitType) do
-                    if i == "LoadedFruit" and v == true then -- Check load fruit
+                    if i == "LoadedFruit"  then -- Check load fruit
+                        print('founded loaded')
                         createTag(FruitName, "Notify", true)
                         return print((FruitName.Name)..' from: '..i.." Method Print Only")
         
@@ -840,7 +840,7 @@ for i,v in pairs(workspace:GetChildren()) do
         print("Fruit thiet su trong server: "..v.Name.."\n")
     end
 end
-print("Loaded Fruit Auto Farm 1.0.22")
+print("Loaded Fruit Auto Farm 1.0.1")
 ingame_notify('Enabled Auto Fruit')
 if default_config then
     ingame_notify('Loaded default config')
