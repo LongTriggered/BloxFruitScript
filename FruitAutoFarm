@@ -240,8 +240,12 @@ function tp(targetCFrame, InstantTp)
     if tweening then
         tweening:Cancel()
     end
+
     if InstantTp and InstantTp == true then
         for i = 1, 15 do
+            if tweening then
+                tweening:Cancel()
+            end
             character().HumanoidRootPart.CFrame = targetCFrame
         end
         return
