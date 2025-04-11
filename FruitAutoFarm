@@ -186,6 +186,7 @@ function random_fruit()
                     end
                 end
                 replicatedstorage.Remotes.CommF_:InvokeServer("Cousin","Buy")
+                delayTask("Random",1)
             end
         end
     end)
@@ -670,10 +671,10 @@ if _G.Setting.Webhook.Enable then
         local method = getnamecallmethod()
 
         if method == "InvokeServer" and self.Name == "CommF_" then
-            if args[1] == "Cousin" and args[2] == "Buy" then
-                    print('random called')
-                    delayTask("Random", 1)
-            elseif args[1] == "LoadFruit" then
+            -- if args[1] == "Cousin" and args[2] == "Buy" then
+            --         print('random called')
+            --         delayTask("Random", 1)
+            if args[1] == "LoadFruit" then
                     delayTask("LoadedFruit",1)
             end
         end
@@ -829,7 +830,7 @@ for i,v in pairs(workspace:GetChildren()) do
         print("Fruit thiet su trong server: "..v.Name.."\n")
     end
 end
-print("Loaded Fruit Auto Farm 1.0.4")
+print("Loaded Fruit Auto Farm 1.0.5")
 ingame_notify('Enabled Auto Fruit')
 if default_config then
     ingame_notify('Loaded default config')
