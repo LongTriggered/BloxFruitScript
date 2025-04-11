@@ -201,7 +201,9 @@ function fire_handle(instance)
 end
 
 function disable_seat()
+    if character() and character():FindFirstChild('Humanoid') and character().Humanoid.Health > 0 then
     character():FindFirstChild('Humanoid').Sit = false
+    end
 end
 
 function anti_afk()
