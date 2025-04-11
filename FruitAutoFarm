@@ -118,6 +118,7 @@ function delayTask(taskname,time)
     fruitType[taskname] = true
     print('delayed '..taskname)
     task.wait(time)
+    print('finish delayed '.. taskname)
     fruitType[taskname] = false
     end)
 end
@@ -839,7 +840,7 @@ for i,v in pairs(workspace:GetChildren()) do
         print("Fruit thiet su trong server: "..v.Name.."\n")
     end
 end
-print("Loaded Fruit Auto Farm 1.0.1")
+print("Loaded Fruit Auto Farm 1.0.16")
 ingame_notify('Enabled Auto Fruit')
 if default_config then
     ingame_notify('Loaded default config')
