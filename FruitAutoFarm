@@ -821,7 +821,7 @@ for i,v in pairs(workspace:GetChildren()) do
         print("Fruit thiet su trong server: "..v.Name.."\n")
     end
 end
-print("Loaded Fruit Auto Farm 1.0.1")
+print("Loaded Fruit Auto Farm 1.0.2")
 ingame_notify('Enabled Auto Fruit')
 if default_config then
     ingame_notify('Loaded default config')
