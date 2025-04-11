@@ -396,7 +396,7 @@ end
 
 function store_fruit(FruitName)
     pcall(function()
-        task.wait(1)
+        task.wait(1.5)
         if FruitName:FindFirstChild('EatRemote') then
             replicatedstorage.Remotes.CommF_:InvokeServer("StoreFruit", reword_fruit(FruitName.Name), FruitName)
         end
@@ -674,6 +674,7 @@ if _G.Setting.Webhook.Enable then
             --         print('random called')
             --         delayTask("Random", 1)
             if args[1] == "LoadFruit" then
+                print("loaded fruit called")
                     delayTask("LoadedFruit",1)
             end
         end
@@ -829,7 +830,7 @@ for i,v in pairs(workspace:GetChildren()) do
         print("Fruit thiet su trong server: "..v.Name.."\n")
     end
 end
-print("Loaded Fruit Auto Farm 1.0.1")
+print("Loaded Fruit Auto Farm 1.0.6")
 ingame_notify('Enabled Auto Fruit')
 if default_config then
     ingame_notify('Loaded default config')
