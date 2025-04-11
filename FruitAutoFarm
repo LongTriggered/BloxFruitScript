@@ -641,24 +641,26 @@ if _G.Setting.Webhook.Enable then
     end
 
     function checkFruitOrigin(FruitName)
-        task.wait(0.7)
-        if FruitName:FindFirstChild("Fruit") and not FruitName:GetAttribute("Notify") then
-            for i,v in ipairs(fruitType) do
-                if i == "LoadedFruit" and v == true then -- Check load fruit
+        task.spawn(function()
+            task.wait(0.7)
+            if FruitName:FindFirstChild("Fruit") and not FruitName:GetAttribute("Notify") then
+                for i,v in ipairs(fruitType) do
+                    if i == "LoadedFruit" and v == true then -- Check load fruit
+                        createTag(FruitName, "Notify", true)
+                        return print((FruitName.Name)..' from: '..i.." Method Print Only")
+        
+                    elseif v == true then
+                        createTag(FruitName, "Notify", true) -- check may cai con lai
+                        return sendJson("NewFruit", {Name = (FruitName.Name) , Source = i} ) ,          print((FruitName.Name)..' from: '..i)
+                    end
+                end
+
+                if FruitName:GetAttribute("FruitSource") == "DroppedFruit" then -- check fruit drop
                     createTag(FruitName, "Notify", true)
-                    return print((FruitName.Name)..' from: '..i.." Method Print Only")
-    
-                elseif v == true then
-                    createTag(FruitName, "Notify", true) -- check may cai con lai
-                    return sendJson("NewFruit", {Name = (FruitName.Name) , Source = i} ) ,          print((FruitName.Name)..' from: '..i)
+                    return sendJson("NewFruit", {Name = (FruitName.Name) , Source = "DroppedFruit"} ) , print((FruitName.Name).." duoc drop")
                 end
             end
-
-            if FruitName:GetAttribute("FruitSource") == "DroppedFruit" then -- check fruit drop
-                createTag(FruitName, "Notify", true)
-                return sendJson("NewFruit", {Name = (FruitName.Name) , Source = "DroppedFruit"} ) , print((FruitName.Name).." duoc drop")
-            end
-        end
+        end)
     end
 
     local mt = getrawmetatable(game) --- Check load fruit and random fruit
@@ -830,7 +832,7 @@ for i,v in pairs(workspace:GetChildren()) do
         print("Fruit thiet su trong server: "..v.Name.."\n")
     end
 end
-print("Loaded Fruit Auto Farm 1.0.6")
+print("Loaded Fruit Auto Farm 1.0.7")
 ingame_notify('Enabled Auto Fruit')
 if default_config then
     ingame_notify('Loaded default config')
