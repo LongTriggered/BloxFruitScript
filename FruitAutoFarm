@@ -113,6 +113,14 @@ function reword_fruit(Name)
 	return `{Word}-{Word}`
 end
 
+function delayTask(taskname,time)
+    task.spawn(function()
+    fruitType[taskname] = true
+    task.wait(time)
+    fruitType[taskname] = false
+    end)
+end
+
 function character()
     return Player.Character or Player.CharacterAdded:Wait()
 end
@@ -186,7 +194,7 @@ function random_fruit()
                     end
                 end
                 replicatedstorage.Remotes.CommF_:InvokeServer("Cousin","Buy")
-                delayTask("Random",1)
+                delayTask("Random", 1)
             end
         end
     end)
@@ -291,7 +299,7 @@ function stop_tween()
 end    
 
 function check_tp()
-    spawn(function()
+    task.spawn(function()
         local LastPos = character().HumanoidRootPart.Position
         while task.wait() do
             if tweening then
@@ -325,12 +333,6 @@ end
 --     tbl[#tbl] = nil
 --     return value
 -- end
-
-function delayTask(taskname,time)
-    fruitType[taskname] = true
-    task.wait(time)
-    fruitType[taskname] = false
-end
 
 function createTag(instance, Name, Value)
     instance:SetAttribute(Name, Value)
@@ -407,6 +409,7 @@ function new_fruit_added(container)
     container.ChildAdded:Connect(function(child)
         store_fruit(child)
         if _G.Setting.Webhook.Enable then
+            print('checking..'..child)
             checkFruitOrigin(child)
         end
     end)
@@ -477,7 +480,7 @@ function hop()
     end
 
     is_hopping = true
-    spawn(function()
+    task.spawn(function()
         for i = _G.Setting.HopServer["Wait Time"] , 0, -1 do
             hop_counting_time = "Waiting to hop server..."..tostring(i).."s"
             task.wait(1)
@@ -541,7 +544,7 @@ function start_main_farm()
                                 tp(CFrame.new(-372.479919, 142.649261, 250.736328, 0.990156472, -8.74954083e-08, 0.139964879, 9.28591817e-08, 1, -3.17916289e-08, -0.139964879, 4.4475712e-08, 0.990156472))
                                 hop()
                                 if not is_hopping then
-                                    spawn(function()
+                                    task.spawn(function()
                                         for i=1,3 do
                                             task.wait(.3)
                                         status_label:Refresh("Waiting"..string.rep("." , i).."\n".."Time after joined server: "..tostring(math.round(time()))..'s')
@@ -601,7 +604,7 @@ function start_main_farm()
                                 tp(wait_location)
                                 hop()
                                 if not is_hopping then
-                                    spawn(function()
+                                    task.spawn(function()
                                         for i=1,3 do
                                             task.wait(.3)
                                             status_label:Refresh("Waiting"..string.rep("." , i).."\n".."Time after joined server: "..tostring(math.round(time()))..'s')
@@ -617,7 +620,7 @@ function start_main_farm()
                             disable_seat()
                             hop()
                             if not is_hopping then
-                                spawn(function()
+                                task.spawn(function()
                                     for i=1,3 do
                                         task.wait(.3)
                                         status_label:Refresh("Waiting"..string.rep("." , i).."\n".."Time after joined server: "..tostring(math.round(time()))..'s')
@@ -644,7 +647,6 @@ if _G.Setting.Webhook.Enable then
     end
 
     function checkFruitOrigin(FruitName)
-        task.spawn(function()
             task.wait(0.7)
             if FruitName:FindFirstChild("Fruit") and not FruitName:GetAttribute("Notify") then
                 for i,v in ipairs(fruitType) do
@@ -663,7 +665,6 @@ if _G.Setting.Webhook.Enable then
                     return sendJson("NewFruit", {Name = (FruitName.Name) , Source = "DroppedFruit"} ) , print((FruitName.Name).." duoc drop")
                 end
             end
-        end)
     end
 
     local mt = getrawmetatable(game) --- Check load fruit and random fruit
@@ -836,7 +837,7 @@ for i,v in pairs(workspace:GetChildren()) do
         print("Fruit thiet su trong server: "..v.Name.."\n")
     end
 end
-print("Loaded Fruit Auto Farm 1.0.9")
+print("Loaded Fruit Auto Farm 1.0.10")
 ingame_notify('Enabled Auto Fruit')
 if default_config then
     ingame_notify('Loaded default config')
