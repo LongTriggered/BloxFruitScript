@@ -113,11 +113,11 @@ function reword_fruit(Name)
 	return `{Word}-{Word}`
 end
 
-function delayTask(taskname,time)
+function delayTask(taskname)
     spawn(function()
     fruitType[taskname] = true
     print('delayed '..taskname)
-    wait(time)
+    task.wait(1)
     print('finish delayed '.. taskname)
     fruitType[taskname] = false
     end)
@@ -196,7 +196,7 @@ function random_fruit()
                     end
                 end
                 replicatedstorage.Remotes.CommF_:InvokeServer("Cousin","Buy")
-                delayTask("Random", 1)
+                delayTask("Random")
             end
         end
     end)
@@ -518,7 +518,7 @@ function start_main_farm()
                             end)
                         until _G.Setting.Enabled == false or not v or v.Parent ~= workspace
                         if not v:FindFirstChild("EatRemote") then
-                            delayTask("Natural",1)
+                            delayTask("Natural")
                         end
                     else
                         if Sea == 2 then
@@ -537,7 +537,7 @@ function start_main_farm()
                                                     status_label:Refresh("Attacking Factory ")
                                             end)
                                         until _G.Setting.Enabled == false or not b.Parent or b.Humanoid.Health <= 0
-                                        delayTask("Factory",1)
+                                        delayTask("Factory")
                                     end
                                 end
                             else
@@ -595,7 +595,7 @@ function start_main_farm()
                                             if not b.HumanoidRootPart:FindFirstChild('TankyParticles') then
                                                 tp(wait_location * CFrame.new(0,-50,0))
                                                 else
-                                                delayTask("PirateRaid",1)
+                                                delayTask("PirateRaid")
                                             end
                                         end
                                     end
@@ -683,7 +683,7 @@ if _G.Setting.Webhook.Enable then
             --         delayTask("Random", 1)
             if args[1] == "LoadFruit" then
                 print("loaded fruit called")
-                    delayTask("LoadedFruit",1)
+                    delayTask("LoadedFruit")
             end
         end
 
@@ -839,7 +839,7 @@ for i,v in pairs(workspace:GetChildren()) do
         print("Fruit thiet su trong server: "..v.Name.."\n")
     end
 end
-print("Loaded Fruit Auto Farm 1.0.18")
+print("Loaded Fruit Auto Farm 1.0.19")
 ingame_notify('Enabled Auto Fruit')
 if default_config then
     ingame_notify('Loaded default config')
