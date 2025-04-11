@@ -639,7 +639,7 @@ if _G.Setting.Webhook.Enable then
     function checkFruitOrigin(FruitName)
         task.wait(0.7)
         if FruitName:FindFirstChild("Fruit") and not FruitName:GetAttribute("Notify") then
-            for i,v in pairs(fruitType) do
+            for i,v in ipairs(fruitType) do
                 if i == "LoadedFruit" and v == true then -- Check load fruit
                     createTag(FruitName, "Notify", true)
                     return print((FruitName.Name)..' from: '..i.." Method Print Only")
@@ -668,7 +668,7 @@ if _G.Setting.Webhook.Enable then
         if method == "InvokeServer" and self.Name == "CommF_" then
             if args[1] == "Cousin" and args[2] == "Buy" then
                     print('random called')
-                    delayTask("Random",1)
+                    delayTask("Random", 1)
             elseif args[1] == "LoadFruit" then
                     delayTask("LoadedFruit",1)
             end
