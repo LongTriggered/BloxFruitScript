@@ -173,7 +173,7 @@ end
 
 function random_fruit()
     task.spawn(function()
-        task.wait(1)
+        task.wait(4)
         if _G.Setting.RandomFruit then
             replicatedstorage.Remotes.CommF_:InvokeServer("Cousin","Buy")
         end
@@ -231,11 +231,13 @@ end
 
 local tweening
 function tp(targetCFrame, InstantTp)
-
     if not character():FindFirstChild('Humanoid') or character().Humanoid.Health <= 0 then
         return
     end
 
+    if tweening then
+        tweening:Cancel()
+    end
     if InstantTp and InstantTp == true then
         for i = 1, 15 do
             character().HumanoidRootPart.CFrame = targetCFrame
@@ -821,7 +823,7 @@ for i,v in pairs(workspace:GetChildren()) do
         print("Fruit thiet su trong server: "..v.Name.."\n")
     end
 end
-print("Loaded Fruit Auto Farm 1.0.2")
+print("Loaded Fruit Auto Farm 1.0.1")
 ingame_notify('Enabled Auto Fruit')
 if default_config then
     ingame_notify('Loaded default config')
