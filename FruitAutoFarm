@@ -244,12 +244,11 @@ function tp(targetCFrame, InstantTp)
     end
 
     if InstantTp and InstantTp == true then
-        for i = 1, 15 do
             if tweening then
                 tweening:Cancel()
+                task.wait(1)
             end
             character().HumanoidRootPart.CFrame = targetCFrame
-        end
         return
     end
 
@@ -830,7 +829,7 @@ for i,v in pairs(workspace:GetChildren()) do
         print("Fruit thiet su trong server: "..v.Name.."\n")
     end
 end
-print("Loaded Fruit Auto Farm 1.0.5")
+print("Loaded Fruit Auto Farm 1.0.1")
 ingame_notify('Enabled Auto Fruit')
 if default_config then
     ingame_notify('Loaded default config')
