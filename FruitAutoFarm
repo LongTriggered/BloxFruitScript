@@ -72,15 +72,15 @@ local fruit_ids = {
     ["Kitsune Fruit"] = "rbxassetid://15482881956",
     ["Dragon Fruit"] = "rbxassetid://115237822212661"
 }
-local fruitType = {
-    Random = false, --Done
+local fruitType = { --Done
+    LoadedFruit = false,
     Factory = false, -- Done
+    PirateRaid = false,
     Natural = false, -- Done
-    DroppedFruit = false, -- Done
-    LoadedFruit = false,--Done
-    PirateRaid = false, -- Done
-    SeaEvent = false,
-    Others = false
+ --   DroppedFruit = false, -- Done--Done -- Done
+ --   SeaEvent = false,
+ --   Others = false,
+    Random = false,
 }
 
 if Player.Team == nil then
@@ -552,6 +552,7 @@ function start_main_farm()
                                 until (wait_location.Position - character().HumanoidRootPart.Position).Magnitude <= 1000 or not _G.Setting.Enabled 
                                 task.wait(0.5)
                             end
+                            
                             local enemies = workspace.Enemies:GetChildren()
                             if #enemies > 0 then
                                 for a,b in pairs(enemies) do
@@ -623,7 +624,7 @@ function start_main_farm()
 end
 
 ------------------------------------------------- FruitNotifier
-if _G.Setting.Webhook.Enable == true then
+if _G.Setting.Webhook.Enable then
 
     function getFruitWorkspace(instance) -- Check Fruit tu nhien va fruit drop
         if instance:FindFirstChild("Fruit") and instance:FindFirstChild('EatRemote') then -- check xem phai fruit da drop ko
@@ -662,10 +663,10 @@ if _G.Setting.Webhook.Enable == true then
 
         if method == "InvokeServer" and self.Name == "CommF_" then
             if args[1] == "Cousin" and args[2] == "Buy" then
+                    print('random called')
                     delayTask("Random",1)
-            end
-            if args[1] == "LoadFruit" then
-                delayTask("LoadedFruit",1)
+            elseif args[1] == "LoadFruit" then
+                    delayTask("LoadedFruit",1)
             end
         end
 
