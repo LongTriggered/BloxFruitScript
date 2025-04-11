@@ -648,7 +648,7 @@ if _G.Setting.Webhook.Enable then
 
     function checkFruitOrigin(FruitName)
             task.wait(0.7)
-            print('checking.'..FruitName)
+            print('checking.'..FruitName.Name)
             if FruitName:FindFirstChild("Fruit") and not FruitName:GetAttribute("Notify") then
                 for i,v in ipairs(fruitType) do
                     if i == "LoadedFruit" and v == true then -- Check load fruit
@@ -837,7 +837,7 @@ for i,v in pairs(workspace:GetChildren()) do
         print("Fruit thiet su trong server: "..v.Name.."\n")
     end
 end
-print("Loaded Fruit Auto Farm 1.0.1")
+print("Loaded Fruit Auto Farm 1.0.14")
 ingame_notify('Enabled Auto Fruit')
 if default_config then
     ingame_notify('Loaded default config')
