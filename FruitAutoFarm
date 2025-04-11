@@ -655,7 +655,7 @@ if _G.Setting.Webhook.Enable then
                     if i == "LoadedFruit" and v == true then -- Check load fruit
                         createTag(FruitName, "Notify", true)
                         print((FruitName.Name)..' from: '..i.." Method Print Only")
-                        return 
+                        break 
         
                     elseif v == true then
                         createTag(FruitName, "Notify", true) -- check may cai con lai
@@ -839,7 +839,7 @@ for i,v in pairs(workspace:GetChildren()) do
         print("Fruit thiet su trong server: "..v.Name.."\n")
     end
 end
-print("Loaded Fruit Auto Farm 1.0.15")
+print("Loaded Fruit Auto Farm 1.0.1")
 ingame_notify('Enabled Auto Fruit')
 if default_config then
     ingame_notify('Loaded default config')
