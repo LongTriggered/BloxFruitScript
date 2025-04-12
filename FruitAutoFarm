@@ -652,7 +652,7 @@ if _G.Setting.Webhook.Enable then
         task.wait(0.7)
             print('checking.'..FruitName.Name)
             if FruitName:FindFirstChild("Fruit") and not FruitName:GetAttribute("Notify") then
-                for i,v in ipairs(fruitType) do
+                for i,v in pairs(fruitType) do
                     if i == "LoadedFruit"  then -- Check load fruit
                         print('founded loaded')
                         createTag(FruitName, "Notify", true)
