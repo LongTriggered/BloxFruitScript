@@ -74,7 +74,7 @@ local fruit_ids = {
     ["Dragon Fruit"] = "rbxassetid://115237822212661"
 }
 local fruitType = { --Done
-    LoadedFruit = false,
+  --  LoadedFruit = false,
     Factory = false, -- Done
     PirateRaid = false,
     Natural = false, -- Done
@@ -112,7 +112,7 @@ function delayTask(taskname)
         fruitType[taskname] = true
         print('delayed '..taskname)
         task.wait(1.2)
-        print('finish delayed '.. taskname)
+        print('finish delayed '.. taskname .. "\n")
         fruitType[taskname] = false
     end)
 end
@@ -238,7 +238,9 @@ function tp(targetCFrame, InstantTp)
                 tweening:Cancel()
                 task.wait(1)
             end
+            for i=1,10 do
             character().HumanoidRootPart.CFrame = targetCFrame
+            end
         return
     end
 
@@ -809,7 +811,7 @@ for i,v in pairs(workspace:GetChildren()) do
         print("Fruit thiet su trong server: "..v.Name.."\n")
     end
 end
-print("Loaded Fruit Auto Farm 1.0.25")
+print("Loaded Fruit Auto Farm 1.0.26")
 ingame_notify('Enabled Auto Fruit')
 if default_config then
     ingame_notify('Loaded default config')
