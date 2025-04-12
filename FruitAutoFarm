@@ -238,10 +238,7 @@ function tp(targetCFrame, InstantTp)
                 tweening:Cancel()
                 task.wait(1)
             end
-            for i=1,10 do
-                task.wait(.15)
             character().HumanoidRootPart.CFrame = targetCFrame
-            end
         return
     end
 
