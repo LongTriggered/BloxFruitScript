@@ -92,8 +92,8 @@ end
 repeat task.wait() until game:GetService('Players').LocalPlayer.Team ~= nil
 repeat task.wait() until game:GetService('Players').LocalPlayer.Character
 
-local FruitCap          = Player.Data.FruitCap.Value
-local backpack          = Player.Backpack
+
+local backpack = Player.Backpack
 local Sea = 0
 if game.PlaceId == 2753915549 then
     Sea = 1
@@ -103,24 +103,23 @@ elseif game.PlaceId == 7449423635 then
 	Sea = 3
 end
 
-
 function create_tag(instance, Name, Value)
     instance:SetAttribute(Name,Value)
+end
+
+function delayTask(taskname)
+    spawn(function()
+        fruitType[taskname] = true
+        print('delayed '..taskname)
+        task.wait(1.2)
+        print('finish delayed '.. taskname)
+        fruitType[taskname] = false
+    end)
 end
 
 function reword_fruit(Name)
     local Word = Name:split(" ")[1]
 	return `{Word}-{Word}`
-end
-
-function delayTask(taskname)
-    spawn(function()
-    fruitType[taskname] = true
-    print('delayed '..taskname)
-    end)
-    task.wait(1.7)
-    print('finish delayed '.. taskname)
-    fruitType[taskname] = false
 end
 
 function character()
@@ -136,6 +135,7 @@ function ingame_notify(msg)
     notify_module.new("<Color=Yellow>"..msg.."<Color=/>"):Display()
 end
 
+local FruitCap = Player.Data.FruitCap.Value
 function skip_fruit(FruitName) -- 0 = common, 1 = uncommon, 2 = rare, 3 = legendary, 4 = mythical 
     if _G.Setting.SkipFullFruit or _G.Setting.SkipUnder1mFruit then
         for _,v in pairs(get_inventory()) do
@@ -180,26 +180,6 @@ function updateNaturalFruitNames()
             end
         end
     end
-end
-
-function random_fruit()
-    task.spawn(function()
-        task.wait(4)
-        if _G.Setting.RandomFruit then
-            replicatedstorage.Remotes.CommF_:InvokeServer("Cousin","Buy")
-        end
-        while task.wait(10) do
-            if _G.Setting.RandomFruit and _G.Setting.Enabled and not farming then
-                for _, v in pairs(fruitType) do
-                    if v == true then
-                        repeat task.wait() until v == false
-                    end
-                end
-                replicatedstorage.Remotes.CommF_:InvokeServer("Cousin","Buy")
-                delayTask("Random")
-            end
-        end
-    end)
 end
 
 function fire_handle(instance)
@@ -253,7 +233,7 @@ function tp(targetCFrame, InstantTp)
         tweening:Cancel()
     end
 
-    if InstantTp and InstantTp == true then
+    if InstantTp then
             if tweening then
                 tweening:Cancel()
                 task.wait(1)
@@ -302,6 +282,7 @@ end
 
 function check_tp()
     task.spawn(function()
+        task.wait(10)
         local LastPos = character().HumanoidRootPart.Position
         while task.wait() do
             if tweening then
@@ -400,7 +381,7 @@ end
 
 function store_fruit(FruitName)
     pcall(function()
-            task.wait(1.5)
+            task.wait(1)
             if FruitName:FindFirstChild('EatRemote') then
                 print("storing "..FruitName.Name)
                 replicatedstorage.Remotes.CommF_:InvokeServer("StoreFruit", reword_fruit(FruitName.Name), FruitName)
@@ -498,6 +479,23 @@ function hop()
     end)
 end
 
+function random_fruit()
+    task.spawn(function()
+        task.wait(4)
+        while task.wait(10) do
+            if _G.Setting.RandomFruit and _G.Setting.Enabled and not farming then
+                for _, v in pairs(fruitType) do
+                    if v == true then
+                        repeat task.wait() until v == false
+                    end
+                end
+                replicatedstorage.Remotes.CommF_:InvokeServer("Cousin","Buy")
+                delayTask("Random")
+            end
+        end
+    end)
+end
+
 function start_main_farm()
     task.spawn(function()
         while task.wait() do
@@ -520,7 +518,7 @@ function start_main_farm()
                         if not v:FindFirstChild("EatRemote") then
                             delayTask("Natural")
                         end
-                    else
+                    else --Sea 2
                         if Sea == 2 then
                             if workspace.Enemies:FindFirstChild("Core") then
                                 for a,b in pairs(workspace.Enemies:GetChildren()) do
@@ -529,7 +527,7 @@ function start_main_farm()
                                             pcall(function()
                                                     farming = true                              
                                                     set_property()
-                                                    tp(CFrame.new(426.444153, 182.586456, -429.883057))
+                                                    tp(CFrame.new(426.444153, 178.586456, -429.883057))
                                                     hit(b.UpperTorso)
                                                     equip_tool()
                                                     enable_buso()
@@ -556,7 +554,7 @@ function start_main_farm()
                                     status_label:Refresh(hop_counting_time)
                                 end
                             end
-                        end
+                        end --- Sea3
                         if Sea == 3 then
                             local wait_location = CFrame.new(-5140.06445, 316.5, -3001.552)
                             if (wait_location.Position - character().HumanoidRootPart.Position).Magnitude > 1000 then
@@ -616,7 +614,7 @@ function start_main_farm()
                                     status_label:Refresh(hop_counting_time)
                                 end  
                             end
-                        end
+                        end--Sea1
                         if Sea == 1 then
                             farming = false
                             disable_seat()
@@ -649,16 +647,11 @@ if _G.Setting.Webhook.Enable then
     end
 
     function checkFruitOrigin(FruitName)
-        task.wait(0.7)
+        task.wait(0.2)
             print('checking.'..FruitName.Name)
             if FruitName:FindFirstChild("Fruit") and not FruitName:GetAttribute("Notify") then
                 for i,v in pairs(fruitType) do
-                    if i == "LoadedFruit"  then -- Check load fruit
-                        print('founded loaded')
-                        createTag(FruitName, "Notify", true)
-                        return print((FruitName.Name)..' from: '..i.." Method Print Only")
-        
-                    elseif v == true then
+                    if v == true then
                         createTag(FruitName, "Notify", true) -- check may cai con lai
                         return sendJson("NewFruit", {Name = (FruitName.Name) , Source = i} ) ,          print((FruitName.Name)..' from: '..i)
                     end
@@ -669,30 +662,6 @@ if _G.Setting.Webhook.Enable then
                 end
             end
     end
-
-    local mt = getrawmetatable(game) --- Check load fruit and random fruit
-    local oldNamecall = mt.__namecall
-
-    setreadonly(mt, false)
-    mt.__namecall = newcclosure(function(self, ...)
-        local args = {...}
-        local method = getnamecallmethod()
-
-        if method == "InvokeServer" and self.Name == "CommF_" then
-            -- if args[1] == "Cousin" and args[2] == "Buy" then
-            --         print('random called')
-            --         delayTask("Random", 1)
-            if args[1] == "LoadFruit" then
-                print("loaded fruit called")
-                    delayTask("LoadedFruit")
-            end
-        end
-
-        return oldNamecall(self, ...)
-    end)
-
-    setreadonly(mt, true)
-
     -- local characterConnection
     -- local backpackConnection
 
@@ -840,7 +809,7 @@ for i,v in pairs(workspace:GetChildren()) do
         print("Fruit thiet su trong server: "..v.Name.."\n")
     end
 end
-print("Loaded Fruit Auto Farm 1.0.1")
+print("Loaded Fruit Auto Farm 1.0.25")
 ingame_notify('Enabled Auto Fruit')
 if default_config then
     ingame_notify('Loaded default config')
