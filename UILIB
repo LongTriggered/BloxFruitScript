@@ -83,6 +83,9 @@ end
 
 local Discord = Instance.new("ScreenGui")
 Discord.Name = "Discord"
+if _G.Setting.NoUI then
+Discord.Enabled = false
+end
 Discord.Parent = game.CoreGui
 Discord.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
