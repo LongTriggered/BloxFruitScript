@@ -51,7 +51,7 @@ function getRaceLevel()
     local RaceV4     = game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("RaceV4Progress","Check")
     local RaceV3     = game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("Wenlocktoad","1")
     local RaceV2     = game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("Alchemist")
-    if RaceV4 == 4 then
+    if RaceV4 == 5 then
         return " [V4]"                
     elseif RaceV3 == -2 then
         return " [V3]"
