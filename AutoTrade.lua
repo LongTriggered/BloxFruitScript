@@ -3,6 +3,14 @@ local player                = game:GetService("Players")
 local replicatedstorage     = game:GetService("ReplicatedStorage")
 local workspace             = game:GetService("Workspace") 
 local notify_module = require(game:GetService("ReplicatedStorage").Notification)
+local SeatPath
+if game.PlaceId == 7449423635 then
+    SeatPath = workspace.Map.Turtle:GetChildren()
+elseif game.PlaceId == 4442272183 then
+    SeatPath = workspace.Map.Dressrosa:GetChildren()
+else
+    error("wrong game")
+end
 
 function ingame_notify(msg)
     notify_module.new("<Color=Yellow>"..msg.."<Color=/>"):Display()
@@ -103,7 +111,7 @@ end
 
 local found = false
 function getchair()
-    for i,v in ipairs(workspace.Map.Turtle:GetChildren()) do
+    for i,v in ipairs(SeatPath) do
         if v.Name == "TradeTable" then
             local Seat1 =   v:FindFirstChild('P1')
             local Seat2 =   v:FindFirstChild('P2')
@@ -144,6 +152,7 @@ function getchair()
 end
 
 function auto_trade()
+    game.Players.LocalPlayer.PlayerGui.Notifications.Enabled = false
     if mainacc then
         if found then
             for i,v in pairs(useless_fruit_table) do
