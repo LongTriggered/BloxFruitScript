@@ -120,7 +120,7 @@ end
 function delayTask(taskname)
     fruitType[taskname] = true
     print('delayed '..taskname)
-    task.wait(0.6)
+    task.wait(0.4)
     print('finish delayed '.. taskname .. "\n")
     fruitType[taskname] = false
 end
@@ -927,4 +927,4 @@ if default_config then
     ingame_notify('Loaded provided config')
 end
 
-ingame_notify('Fixed no webhook for pirateraid/factory ')
+ingame_notify('Fixed no webhook notify for pirateraid/factory ')
