@@ -668,73 +668,77 @@ function auto_fruit_sea2()
 end
 
 function auto_fruit_sea3()
-    for _,v in pairs(workspace.Enemies:GetChildren()) do
-        if v:FindFirstChild('Humanoid') and v:FindFirstChild('HumanoidRootPart') and (WaitPos.Position - v.HumanoidRootPart.Position).Magnitude < 1000 and v.Name ~= "rip_indra True Form" and not v:GetAttribute("IsBoat") and v.Humanoid.Health > 0 and (WaitPos.Position - character().HumanoidRootPart.Position).Magnitude < 1000  then
-            repeat task.wait(1e-9)
-                pcall(function()
-                    farming = true
-                    -- if v.HumanoidRootPart:FindFirstChild('TankyParticles') then
-                    --     tp(v.HumanoidRootPart.CFrame * CFrame.new(0, -20, 0), sf.InstantTp)
-                    -- else
-                    --     tp(v.HumanoidRootPart.CFrame * CFrame.new(0, -20, 0))
-                    -- end                  
-					tp(v.HumanoidRootPart.CFrame * CFrame.new(0, -20, 0))
-                    v.Humanoid.WalkSpeed = 0
-                    v.Humanoid.JumpPower = 0
-                    equip_tool()
-                    enable_buso()
-                    disable_seat()
-                    set_property()
-                    hit(v.UpperTorso)
-                    status_label:Refresh("Attacking Pirate Raid ")
-                end)
-            until not sf.Enabled or not v.Parent or (v:FindFirstChild('Humanoid') and v.Humanoid.Health <= 0)
-			if not v.HumanoidRootPart:FindFirstChild('TankyParticles') then
-				tp(WaitPos * CFrame.new(0,-50,0))
-				else
-				delayTask("PirateRaid")
-			end
-        end
-    end
-
-    for _,v in pairs(workspace:GetChildren()) do
-        if v:FindFirstChild("Fruit") and v:FindFirstChild('Handle') then
-
-            if skip_fruit(v.Name) then
-                continue
+    local enemies = workspace.Enemies:GetChildren()
+    if #enemies > 0 then 
+        for _,v in pairs(enemies) do
+            if v:FindFirstChild('Humanoid') and v:FindFirstChild('HumanoidRootPart') and (WaitPos.Position - v.HumanoidRootPart.Position).Magnitude < 1000 and v.Name ~= "rip_indra True Form" and not v:GetAttribute("IsBoat") and v.Humanoid.Health > 0 and (WaitPos.Position - character().HumanoidRootPart.Position).Magnitude < 1000  then
+                repeat task.wait(1e-9)
+                    pcall(function()
+                        farming = true
+                        -- if v.HumanoidRootPart:FindFirstChild('TankyParticles') then
+                        --     tp(v.HumanoidRootPart.CFrame * CFrame.new(0, -20, 0), sf.InstantTp)
+                        -- else
+                        --     tp(v.HumanoidRootPart.CFrame * CFrame.new(0, -20, 0))
+                        -- end                  
+                        tp(v.HumanoidRootPart.CFrame * CFrame.new(0, -20, 0))
+                        v.Humanoid.WalkSpeed = 0
+                        v.Humanoid.JumpPower = 0
+                        equip_tool()
+                        enable_buso()
+                        disable_seat()
+                        set_property()
+                        hit(v.UpperTorso)
+                        status_label:Refresh("Attacking Pirate Raid ")
+                    end)
+                until not sf.Enabled or not v.Parent or (v:FindFirstChild('Humanoid') and v.Humanoid.Health <= 0)
+                if not v.HumanoidRootPart:FindFirstChild('TankyParticles') then
+                    tp(WaitPos * CFrame.new(0,-50,0))
+                    else
+                    delayTask("PirateRaid")
+                end
             end
-            status_label:Refresh("Teleporting to "..v.Name)
-            repeat RunService.Heartbeat:wait()
-                pcall(function()
-                    tp(v.Handle.CFrame, sf.InstantTp)
-                    fire_handle(v.Handle)
-                    farming = true
-                    disable_seat()
-                end)
-            until not sf.Enabled or not v or v.Parent ~= workspace
-
-            if not v:FindFirstChild("EatRemote") then
-                delayTask("Natural")
-            end            
         end
-    end
-
-    farming = false
-    disable_seat()
-    tp(WaitPos)
-    if (WaitPos.Position - character().HumanoidRootPart.Position).Magnitude < 1000 then
-        hop()
-    end
-    if not is_hopping then
-        task.spawn(function()
-            for i=1,3 do
-                task.wait(.3)
-                status_label:Refresh("Waiting"..string.rep("." , i).."\n".."Time after joined server: "..tostring(math.round(time()))..'s')
-            end
-        end)
     else
-        status_label:Refresh(hop_counting_time)
-    end  
+
+        for _,v in pairs(workspace:GetChildren()) do
+            if v:FindFirstChild("Fruit") and v:FindFirstChild('Handle') then
+
+                if skip_fruit(v.Name) then
+                    continue
+                end
+                status_label:Refresh("Teleporting to "..v.Name)
+                repeat RunService.Heartbeat:wait()
+                    pcall(function()
+                        tp(v.Handle.CFrame, sf.InstantTp)
+                        fire_handle(v.Handle)
+                        farming = true
+                        disable_seat()
+                    end)
+                until not sf.Enabled or not v or v.Parent ~= workspace
+
+                if not v:FindFirstChild("EatRemote") then
+                    delayTask("Natural")
+                end            
+            end
+        end
+
+        farming = false
+        disable_seat()
+        tp(WaitPos)
+        if (WaitPos.Position - character().HumanoidRootPart.Position).Magnitude < 1000 then
+            hop()
+        end
+        if not is_hopping then
+            task.spawn(function()
+                for i=1,3 do
+                    task.wait(.3)
+                    status_label:Refresh("Waiting"..string.rep("." , i).."\n".."Time after joined server: "..tostring(math.round(time()))..'s')
+                end
+            end)
+        else
+            status_label:Refresh(hop_counting_time)
+        end  
+    end
 end
 
 function start_main_farm()
@@ -924,4 +928,4 @@ if default_config then
     ingame_notify('Loaded provided config')
 end
 
-ingame_notify('Updated Hot fix no notifcation for pirateraid/factory')
+ingame_notify('Updated Hot fix no notifcation for pirateraid/factory ~~~~~~')
