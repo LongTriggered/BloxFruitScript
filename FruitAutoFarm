@@ -669,7 +669,7 @@ end
 
 function auto_fruit_sea3()
     local enemies = workspace.Enemies:GetChildren()
-    if #enemies > 0 then 
+    if #enemies > 0 and not workspace.Enemies:FindFirstChild('Tyrant of the Skies') then 
         for _,v in pairs(enemies) do
             if v:FindFirstChild('Humanoid') and v:FindFirstChild('HumanoidRootPart') and (WaitPos.Position - v.HumanoidRootPart.Position).Magnitude < 1000 and v.Name ~= "rip_indra True Form" and not v:GetAttribute("IsBoat") and v.Humanoid.Health > 0 and (WaitPos.Position - character().HumanoidRootPart.Position).Magnitude < 1000  then
                 repeat task.wait(1e-9)
@@ -928,4 +928,4 @@ if default_config then
     ingame_notify('Loaded provided config')
 end
 
-ingame_notify('Updated Hot fix no notifcation for pirateraid/factory ~~~~~~')
+ingame_notify('Updated Hot fix no notifcation for pirateraid/factory')
