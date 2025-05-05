@@ -674,11 +674,12 @@ function auto_fruit_sea3()
             repeat task.wait(1e-9)
                 pcall(function()
                     farming = true
-                    if v.HumanoidRootPart:FindFirstChild('TankyParticles') then
-                        tp(v.HumanoidRootPart.CFrame * CFrame.new(0, -20, 0), sf.InstantTp)
-                    else
-                        tp(v.HumanoidRootPart.CFrame * CFrame.new(0, -20, 0))
-                    end                  
+                    -- if v.HumanoidRootPart:FindFirstChild('TankyParticles') then
+                    --     tp(v.HumanoidRootPart.CFrame * CFrame.new(0, -20, 0), sf.InstantTp)
+                    -- else
+                    --     tp(v.HumanoidRootPart.CFrame * CFrame.new(0, -20, 0))
+                    -- end                  
+					tp(v.HumanoidRootPart.CFrame * CFrame.new(0, -20, 0))
                     v.Humanoid.WalkSpeed = 0
                     v.Humanoid.JumpPower = 0
                     equip_tool()
