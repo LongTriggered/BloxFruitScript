@@ -924,4 +924,4 @@ if default_config then
     ingame_notify('Loaded provided config')
 end
 
-ingame_notify('Updatedddddddddddddddddddddddddddddd')
+ingame_notify('Updated Hot fix no notifcation for pirateraid/factory')
