@@ -690,8 +690,11 @@ function auto_fruit_sea3()
                     status_label:Refresh("Attacking Pirate Raid ")
                 end)
             until not sf.Enabled or not v.Parent or (v:FindFirstChild('Humanoid') and v.Humanoid.Health <= 0)
-            tp(WaitPos * CFrame.new(0,-50,0))
-            delayTask("PirateRaid")
+			if not v.HumanoidRootPart:FindFirstChild('TankyParticles') then
+				tp(WaitPos * CFrame.new(0,-50,0))
+				else
+				delayTask("PirateRaid")
+			end
         end
     end
 
@@ -921,3 +924,5 @@ if default_config then
     else
     ingame_notify('Loaded provided config')
 end
+
+print('Updatedddddddddddddddddddddddddddddd')
