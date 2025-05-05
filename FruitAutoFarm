@@ -401,7 +401,6 @@ end
 function new_fruit_added(container)
     container.ChildAdded:Connect(function(child)
         spawn(function()
-            task.wait(0.4)
             checkFruitOrigin(child)
             store_fruit(child)
         end)
