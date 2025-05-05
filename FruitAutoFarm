@@ -668,9 +668,8 @@ function auto_fruit_sea2()
 end
 
 function auto_fruit_sea3()
-    local enemies = workspace.Enemies:GetChildren()
-    if #enemies > 0 and not workspace.Enemies:FindFirstChild('Tyrant of the Skies') then 
-        for _,v in pairs(enemies) do
+    if workspace.Enemies:FindFirstChild("Galley Pirate") or workspace.Enemies:FindFirstChild("Galley Captain") or workspace.Enemies:FindFirstChild("Raider") or workspace.Enemies:FindFirstChild("Mercenary") or workspace.Enemies:FindFirstChild("Vampire") or workspace.Enemies:FindFirstChild("Zombie") or workspace.Enemies:FindFirstChild("Snow Trooper") or workspace.Enemies:FindFirstChild("Winter Warrior") or workspace.Enemies:FindFirstChild("Lab Subordinate") or workspace.Enemies:FindFirstChild("Horned Warrior") or workspace.Enemies:FindFirstChild("Magma Ninja") or workspace.Enemies:FindFirstChild("Lava Pirate") or workspace.Enemies:FindFirstChild("Ship Deckhand") or workspace.Enemies:FindFirstChild("Ship Engineer") or workspace.Enemies:FindFirstChild("Ship Steward") or workspace.Enemies:FindFirstChild("Ship Officer") or workspace.Enemies:FindFirstChild("Arctic Warrior") or workspace.Enemies:FindFirstChild("Snow Lurker") or workspace.Enemies:FindFirstChild("Sea Soldier") or workspace.Enemies:FindFirstChild("Water Fighter") then
+        for _,v in pairs(workspace.Enemies:GetChildren()) do
             if v:FindFirstChild('Humanoid') and v:FindFirstChild('HumanoidRootPart') and (WaitPos.Position - v.HumanoidRootPart.Position).Magnitude < 1000 and v.Name ~= "rip_indra True Form" and not v:GetAttribute("IsBoat") and v.Humanoid.Health > 0 and (WaitPos.Position - character().HumanoidRootPart.Position).Magnitude < 1000  then
                 repeat task.wait(1e-9)
                     pcall(function()
@@ -928,4 +927,4 @@ if default_config then
     ingame_notify('Loaded provided config')
 end
 
-ingame_notify('Hot fix for no notifcation for pirateraid/factory ')
+ingame_notify('Fixed no webhook for pirateraid/factory ')
