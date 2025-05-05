@@ -815,7 +815,7 @@ channel_mainui:Textbox("Job Id", "Shin dep trai vkl",  false,  function(t)
 end)
 
 channel_mainui:Button("Join server with input job id", function()
-    game:GetService("TeleportService"):TeleportToPlaceInstance(game.placeId, input_jobid, game.Players.LocalPlayer)
+    game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, input_jobid, game.Players.LocalPlayer)
 end)
 
 local sea_teleport_remote = {
@@ -925,4 +925,4 @@ if default_config then
     ingame_notify('Loaded provided config')
 end
 
-print('Updatedddddddddddddddddddddddddddddd')
+ingame_notify('Updatedddddddddddddddddddddddddddddd')
