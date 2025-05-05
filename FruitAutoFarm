@@ -1,3 +1,4 @@
+
 if not game:IsLoaded() then
     game.Loaded:Wait()
 end
@@ -7,16 +8,22 @@ if not _G.Setting then
     default_config = true
     _G.Setting    = {
         Enabled             = true,
-        NoUI                = false,
         WeaponToAttack      = "Melee", -- "Sword", "Melee", "FruitM1"
-        SkipUnder1mFruit    = false,
-        SkipFullFruit       = false,
+        Team                = "Marines",
+        SkipFruitSetting = {
+            FullStorage     = false,
+            Common          = false,
+            Uncommon        = false,
+            Rare            = false,
+            Legendary       = false,
+            Mythical        = false,
+                            },
         RandomFruit         = true,
         InstantTp           = true,
+        NoUI                = false,
         WhiteScreen         = false,
-        Team                = "Marines",
-        HopServer           = { ["Enable"] = false  , ["Wait Time"]     = 60    },
-        Webhook             = { ["Enable"] = true   , ["WebhookLink"]   = ""    }
+        HopServer           = {["Enable"] = false, ["Wait Time"]   = 60},
+        Webhook             = {["Enable"] = false, ["WebhookLink"] = ""}
     }
 else
     default_config = false
@@ -29,7 +36,8 @@ local TeleportService   = game:GetService("TeleportService")
 local HttpService       = game:GetService("HttpService")
 local RunService        = game:GetService("RunService")
 local Player            = PlayerService.LocalPlayer
-local farming = false
+local farming           = false
+local sf                = _G.Setting
 
 local fruit_ids = {
     ["Rocket Fruit"] = "rbxassetid://15060012861",
@@ -86,7 +94,7 @@ local fruitType = { --Done
 }
 
 if Player.Team == nil then
-    game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("SetTeam", tostring(_G.Setting.Team)) 
+    game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("SetTeam", tostring(sf.Team)) 
     print('remote join team called')
 end
 
@@ -95,13 +103,14 @@ repeat task.wait() until game:GetService('Players').LocalPlayer.Character
 
 
 local backpack = Player.Backpack
-local Sea = 0
+local Sea
+local WaitPos
 if game.PlaceId == 2753915549 then
-    Sea = 1
+    Sea, WaitPos  = 1, CFrame.new(0,0,0)
 elseif game.PlaceId == 4442272183 then
-    Sea = 2
+    Sea, WaitPos = 2, CFrame.new(-372.479919, 142.649261, 250.736328, 0.990156472, -8.74954083e-08, 0.139964879, 9.28591817e-08, 1, -3.17916289e-08, -0.139964879, 4.4475712e-08, 0.990156472)
 elseif game.PlaceId == 7449423635 then
-	Sea = 3
+	Sea, WaitPos = 3, CFrame.new(-5015.21484375, 314.5509948730469, -3004.172119140625)
 end
 
 function create_tag(instance, Name, Value)
@@ -109,13 +118,11 @@ function create_tag(instance, Name, Value)
 end
 
 function delayTask(taskname)
-    spawn(function()
-        fruitType[taskname] = true
-        print('delayed '..taskname)
-        task.wait(1.2)
-        print('finish delayed '.. taskname .. "\n")
-        fruitType[taskname] = false
-    end)
+    fruitType[taskname] = true
+    print('delayed '..taskname)
+    task.wait(0.6)
+    print('finish delayed '.. taskname .. "\n")
+    fruitType[taskname] = false
 end
 
 function reword_fruit(Name)
@@ -137,32 +144,31 @@ function ingame_notify(msg)
 end
 
 local FruitCap = Player.Data.FruitCap.Value
+local raritykey = {"Common", "Uncommon", "Rare","Legendary", "Mythical"}
 function skip_fruit(FruitName) -- 0 = common, 1 = uncommon, 2 = rare, 3 = legendary, 4 = mythical 
-    if _G.Setting.SkipFullFruit or _G.Setting.SkipUnder1mFruit then
         for _,v in pairs(get_inventory()) do
             if v.Type == "Blox Fruit" then
                 if v.Name == reword_fruit(FruitName) then -- vd: Doi "Spider Fruit" -> "Spider-Spider"
-                    
-                    if _G.Setting.SkipFullFruit then
+
+                    if sf.SkipFruitSetting.FullStorage then
                         if v.Count >= FruitCap then
                             print('Skipped '..FruitName.." due to full storage")
                             return true
                         end
                     end
-                    if _G.Setting.SkipUnder1mFruit then
-                        if v.Rarity < 3 then
-                            print('Skipped '..FruitName.." due to lower than 1m")
-                            return true
-                        end
+
+                    local keymap = raritykey[v.Rarity+1]
+                    if keymap and sf.SkipFruitSetting[keymap] == true then
+                        print('Skipped '..FruitName.." due to skip [".. keymap .. " Fruit]")
+                        return true
                     end
                 end
             end
         end
-    end
     return false
 end
 
-function updateNaturalFruitNames()
+function get_natural_fruit_name()
     for i,v in pairs(workspace:GetChildren()) do
         if v:FindFirstChild('Fruit') and not v:FindFirstChild('EatRemote') then -- fruit tu nhien
             local found_fruit_name = false
@@ -179,6 +185,8 @@ function updateNaturalFruitNames()
             if not found_fruit_name then
                 v.Name = "Unknow Fruit"
             end
+            print("******************************** New fruit spawned: ["..v.Name.."] ********************************)")
+            ingame_notify("New fruit spawned: ["..v.Name.."]")
         end
     end
 end
@@ -249,7 +257,7 @@ function tp(targetCFrame, InstantTp)
     local distance = (targetPosition - playerPosition).Magnitude
     local tp_speed = 200
         if distance <= 45 then
-            tp_speed = 10000
+            tp_speed = 100000
         elseif distance < 50 then
             tp_speed = 2000
         elseif distance < 150 then
@@ -259,9 +267,9 @@ function tp(targetCFrame, InstantTp)
         elseif distance < 500 then
             tp_speed = 400
         elseif distance < 750 then
-            tp_speed = 250
+            tp_speed = 300
         elseif distance >= 1000 then
-            tp_speed = 200
+            tp_speed = 300
         end
         create_force()
         tweening =  game:GetService("TweenService"):Create(
@@ -299,7 +307,7 @@ end
 
 function noclip()
     RunService.Stepped:Connect(function()
-        if _G.Setting.Enabled then
+        if sf.Enabled and tweening then
             for _, Item in pairs(character():GetDescendants()) do
                 if Item:IsA("BasePart") then
                     Item.CanCollide = false
@@ -353,7 +361,7 @@ function sendJson(filename,data)
     local requestFunction = http_request or request or HttpPost
     if requestFunction then
         local response = requestFunction({
-            Url = _G.Setting.Webhook.WebhookLink or DiscordWebhookUrl or "",
+            Url = sf.Webhook.WebhookLink or DiscordWebhookUrl or "",
             Method = "POST",
             Headers = headers,
             Body = body,
@@ -383,7 +391,7 @@ end
 function store_fruit(FruitName)
     pcall(function()
             task.wait(1)
-            if FruitName:FindFirstChild('EatRemote') then
+            if FruitName:FindFirstChild('EatRemote') and sf.Enabled then
                 print("storing "..FruitName.Name)
                 replicatedstorage.Remotes.CommF_:InvokeServer("StoreFruit", reword_fruit(FruitName.Name), FruitName)
             end
@@ -392,16 +400,17 @@ end
 
 function new_fruit_added(container)
     container.ChildAdded:Connect(function(child)
-        if _G.Setting.Webhook.Enable then
+        spawn(function()
+            task.wait(0.4)
             checkFruitOrigin(child)
-        end
-        store_fruit(child)
+            store_fruit(child)
+        end)
     end)
 end
 
 function enable_buso()
     if not character():FindFirstChild('HasBuso') then
-        replicatedstorage.Remotes.CommF_:InvokeServer("Buso")
+        return replicatedstorage.Remotes.CommF_:InvokeServer("Buso")
     end
 end
 
@@ -413,7 +422,7 @@ local currentEquippedWeapon = nil
 function equip_tool()
     for i,v in pairs(backpack:GetChildren()) do
         if v:IsA("Tool") then
-            if (v.ToolTip == _G.Setting.WeaponToAttack) or (_G.Setting.WeaponToAttack == "FruitM1" and v.ToolTip == "Blox Fruit") then
+            if (v.ToolTip == sf.WeaponToAttack) or (sf.WeaponToAttack == "FruitM1" and v.ToolTip == "Blox Fruit") then
                 character():FindFirstChild('Humanoid'):EquipTool(v)
                 currentEquippedWeapon = v
                 return
@@ -429,7 +438,7 @@ local register_hit = combat_module:RemoteEvent("RegisterHit")
 function hit(hitPart)
     local playerPosition = character().HumanoidRootPart.Position
     if (playerPosition-hitPart.Position).Magnitude <= 60 then
-        if _G.Setting.WeaponToAttack == "FruitM1" and currentEquippedWeapon then
+        if sf.WeaponToAttack == "FruitM1" and currentEquippedWeapon then
                 currentEquippedWeapon:FindFirstChild('LeftClickRemote'):FireServer(character().HumanoidRootPart.CFrame.LookVector, 2)
         else
             register_attack:FireServer(1e-9)
@@ -441,36 +450,99 @@ end
 local is_hopping = false
 local hop_counting_time = "Getting hopserver data"
 function hop()
-    if not _G.Setting.HopServer["Enable"] or is_hopping then
+    if not sf.HopServer["Enable"] or is_hopping then
         return
     end
 
-    local function serverhop_function()
-        local servers = {}
-        local req = http_request({Url = string.format("https://games.roblox.com/v1/games/%d/servers/Public?sortOrder=Desc&limit=100&excludeFullGames=true", game.PlaceId)})
-        local body = game:GetService('HttpService'):JSONDecode(req.Body)
+    -- local function serverhop_function() --- inf yield server  hop
+    --     local servers = {}
+    --     local req = http_request({Url = string.format("https://games.roblox.com/v1/games/%d/servers/Public?sortOrder=Desc&limit=100&excludeFullGames=true", game.PlaceId)})
+    --     local body = game:GetService('HttpService'):JSONDecode(req.Body)
 
-        if body and body.data then
-            for i, v in next, body.data do
-                if type(v) == "table" and tonumber(v.playing) and tonumber(v.maxPlayers) and v.playing < v.maxPlayers and v.id ~= game.JobId then
-                    table.insert(servers, 1, v.id)
+    --     if body and body.data then
+    --         for i, v in next, body.data do
+    --             if type(v) == "table" and tonumber(v.playing) and tonumber(v.maxPlayers) and v.playing < v.maxPlayers and v.id ~= game.JobId then
+    --                 table.insert(servers, 1, v.id)
+    --             end
+    --         end
+    --     end
+
+    --     while #servers > 0 and task.wait(1) do
+    --         game:GetService('TeleportService'):TeleportToPlaceInstance(game.PlaceId, servers[math.random(1, #servers)], game.Players.LocalPlayer)
+    --     end
+    -- end
+
+    local function serverhop_function() --normal server hop
+        local PlaceID = game.PlaceId
+        local AllIDs = {}
+        local foundAnything = ""
+        local actualHour = os.date("!*t").hour
+        local Deleted = false
+        function TPReturner()
+            local Site;
+            if foundAnything == "" then
+                Site = game.HttpService:JSONDecode(game:HttpGet('https://games.roblox.com/v1/games/' .. PlaceID .. '/servers/Public?sortOrder=Asc&limit=100'))
+            else
+                Site = game.HttpService:JSONDecode(game:HttpGet('https://games.roblox.com/v1/games/' .. PlaceID .. '/servers/Public?sortOrder=Asc&limit=100&cursor=' .. foundAnything))
+            end
+            local ID = ""
+            if Site.nextPageCursor and Site.nextPageCursor ~= "null" and Site.nextPageCursor ~= nil then
+                foundAnything = Site.nextPageCursor
+            end
+            local num = 0;
+            for i,v in pairs(Site.data) do
+                local Possible = true
+                ID = tostring(v.id)
+                if tonumber(v.maxPlayers) > tonumber(v.playing) then
+                    for _,Existing in pairs(AllIDs) do
+                        if num ~= 0 then
+                            if ID == tostring(Existing) then
+                                Possible = false
+                            end
+                        else
+                            if tonumber(actualHour) ~= tonumber(Existing) then
+                                local delFile = pcall(function()                                
+                                    AllIDs = {}
+                                    table.insert(AllIDs, actualHour)
+                                end)
+                            end
+                        end
+                        num = num + 1
+                    end
+                    if Possible == true then
+                        table.insert(AllIDs, ID)
+                        wait(.1)
+                        pcall(function()
+                            
+                            wait()
+                            game:GetService("TeleportService"):TeleportToPlaceInstance(PlaceID, ID, game.Players.LocalPlayer)
+                        end)
+                        wait(.1)
+                    end
                 end
             end
         end
-
-        while #servers > 0 and task.wait(1) do
-            game:GetService('TeleportService'):TeleportToPlaceInstance(game.PlaceId, servers[math.random(1, #servers)], game.Players.LocalPlayer)
+        function Teleport() 
+            while wait(.1) do
+                pcall(function()
+                    TPReturner()
+                    if foundAnything ~= "" then
+                        TPReturner()
+                    end
+                end)
+            end
         end
+        Teleport()
     end
 
     is_hopping = true
     task.spawn(function()
-        for i = _G.Setting.HopServer["Wait Time"] , 0, -1 do
+        for i = sf.HopServer["Wait Time"] , 0, -1 do
             hop_counting_time = "Waiting to hop server..."..tostring(i).."s"
             task.wait(1)
         end
 
-        if farming == true or not _G.Setting.HopServer["Enable"] then
+        if farming == true or not sf.HopServer["Enable"] then
             is_hopping = false
             status_label:Refresh("Hopping cancelled")
             return
@@ -484,7 +556,7 @@ function random_fruit()
     task.spawn(function()
         task.wait(4)
         while task.wait(10) do
-            if _G.Setting.RandomFruit and _G.Setting.Enabled and not farming then
+            if sf.RandomFruit and sf.Enabled and not farming then
                 for _, v in pairs(fruitType) do
                     if v == true then
                         repeat task.wait() until v == false
@@ -497,141 +569,181 @@ function random_fruit()
     end)
 end
 
+function auto_fruit_sea1()
+    for _,v in pairs(workspace:GetChildren()) do
+        if v:FindFirstChild("Fruit") and v:FindFirstChild('Handle') then
+
+            if skip_fruit(v.Name) then
+                continue
+            end
+
+            repeat RunService.Heartbeat:wait()
+                pcall(function()
+                    tp(v.Handle.CFrame, sf.InstantTp)
+                    fire_handle(v.Handle)
+                    farming = true
+                    disable_seat()
+                    status_label:Refresh("Teleporting to "..v.Name)
+                end)
+            until not sf.Enabled or not v or v.Parent ~= workspace
+
+            if not v:FindFirstChild("EatRemote") then
+                delayTask("Natural")
+            end            
+        end
+    end
+
+    farming = false
+    disable_seat()
+    hop()
+    if not is_hopping then
+        task.spawn(function()
+            for i=1,3 do
+                task.wait(.3)
+                status_label:Refresh("Waiting"..string.rep("." , i).."\n".."Time after joined server: "..tostring(math.round(time()))..'s')
+            end
+        end)
+    else
+        status_label:Refresh(hop_counting_time)
+    end  
+end
+
+function auto_fruit_sea2()
+    for _,v in pairs(workspace.Enemies:GetChildren()) do
+        if v.Name == "Core" and v:FindFirstChild('Humanoid') and v.Humanoid.Health > 0 then 
+
+            repeat task.wait(1e-9)
+                pcall(function()
+                    farming = true   
+                    tp(CFrame.new(426.444153, 178.586456, -429.883057))
+                    equip_tool()
+                    enable_buso()
+                    disable_seat()
+                    set_property()
+                    hit(v.UpperTorso)
+                    status_label:Refresh("Attacking Factory ")
+                end)
+            until not sf.Enabled or not v.Parent or (v:FindFirstChild('Humanoid') and v.Humanoid.Health <= 0)
+
+            delayTask("Factory")
+        end
+    end
+
+    for _,v in pairs(workspace:GetChildren()) do
+        if v:FindFirstChild("Fruit") and v:FindFirstChild('Handle') then
+
+            if skip_fruit(v.Name) then
+                continue
+            end
+
+            repeat RunService.Heartbeat:wait()
+                pcall(function()
+                    tp(v.Handle.CFrame, sf.InstantTp)
+                    fire_handle(v.Handle)
+                    farming = true
+                    disable_seat()
+                    status_label:Refresh("Teleporting to "..v.Name)
+                end)
+            until not sf.Enabled or not v or v.Parent ~= workspace
+
+            if not v:FindFirstChild("EatRemote") then
+                delayTask("Natural")
+            end            
+        end
+    end
+
+    farming = false
+    disable_seat()
+    tp(WaitPos)
+    hop()
+    if not is_hopping then
+        task.spawn(function()
+            for i=1,3 do
+                task.wait(.3)
+            status_label:Refresh("Waiting"..string.rep("." , i).."\n".."Time after joined server: "..tostring(math.round(time()))..'s')
+            end
+        end)
+    else
+        status_label:Refresh(hop_counting_time)
+    end
+end
+
+function auto_fruit_sea3()
+    for _,v in pairs(workspace.Enemies:GetChildren()) do
+        if v:FindFirstChild('Humanoid') and v:FindFirstChild('HumanoidRootPart') and (WaitPos.Position - v.HumanoidRootPart.Position).Magnitude < 1000 and v.Name ~= "rip_indra True Form" and not v:GetAttribute("IsBoat") and v.Humanoid.Health > 0 and (WaitPos.Position - character().HumanoidRootPart.Position).Magnitude < 1000  then
+            repeat task.wait(1e-9)
+                pcall(function()
+                    farming = true
+                    if v.HumanoidRootPart:FindFirstChild('TankyParticles') then
+                        tp(v.HumanoidRootPart.CFrame * CFrame.new(0, -20, 0), sf.InstantTp)
+                    else
+                        tp(v.HumanoidRootPart.CFrame * CFrame.new(0, -20, 0))
+                    end                  
+                    v.Humanoid.WalkSpeed = 0
+                    v.Humanoid.JumpPower = 0
+                    equip_tool()
+                    enable_buso()
+                    disable_seat()
+                    set_property()
+                    hit(v.UpperTorso)
+                    status_label:Refresh("Attacking Pirate Raid ")
+                end)
+            until not sf.Enabled or not v.Parent or (v:FindFirstChild('Humanoid') and v.Humanoid.Health <= 0)
+            tp(WaitPos * CFrame.new(0,-50,0))
+            delayTask("PirateRaid")
+        end
+    end
+
+    for _,v in pairs(workspace:GetChildren()) do
+        if v:FindFirstChild("Fruit") and v:FindFirstChild('Handle') then
+
+            if skip_fruit(v.Name) then
+                continue
+            end
+            status_label:Refresh("Teleporting to "..v.Name)
+            repeat RunService.Heartbeat:wait()
+                pcall(function()
+                    tp(v.Handle.CFrame, sf.InstantTp)
+                    fire_handle(v.Handle)
+                    farming = true
+                    disable_seat()
+                end)
+            until not sf.Enabled or not v or v.Parent ~= workspace
+
+            if not v:FindFirstChild("EatRemote") then
+                delayTask("Natural")
+            end            
+        end
+    end
+
+    farming = false
+    disable_seat()
+    tp(WaitPos)
+    if (WaitPos.Position - character().HumanoidRootPart.Position).Magnitude < 1000 then
+        hop()
+    end
+    if not is_hopping then
+        task.spawn(function()
+            for i=1,3 do
+                task.wait(.3)
+                status_label:Refresh("Waiting"..string.rep("." , i).."\n".."Time after joined server: "..tostring(math.round(time()))..'s')
+            end
+        end)
+    else
+        status_label:Refresh(hop_counting_time)
+    end  
+end
+
 function start_main_farm()
     task.spawn(function()
         while task.wait() do
-           if _G.Setting.Enabled then
-                for i,v in pairs(workspace:GetChildren()) do
-                    
-                    if v:FindFirstChild('Handle') and v:FindFirstChild("Fruit") then
-                        if skip_fruit(v.Name) then
-                            continue
-                        end
-                        repeat task.wait()
-                            pcall(function()
-                                farming = true
-                                disable_seat()
-                                tp(v.Handle.CFrame, _G.Setting.InstantTp)
-                                fire_handle(v.Handle)
-                                status_label:Refresh("Teleporting to "..v.Name)
-                            end)
-                        until _G.Setting.Enabled == false or not v or v.Parent ~= workspace
-                        if not v:FindFirstChild("EatRemote") then
-                            delayTask("Natural")
-                        end
-                    else --Sea 2
-                        if Sea == 2 then
-                            if workspace.Enemies:FindFirstChild("Core") then
-                                for a,b in pairs(workspace.Enemies:GetChildren()) do
-                                    if b.Name == "Core" and b:FindFirstChild('Humanoid') and b.Humanoid.Health > 0 then 
-                                        repeat task.wait(1e-9)
-                                            pcall(function()
-                                                    farming = true                              
-                                                    set_property()
-                                                    tp(CFrame.new(426.444153, 178.586456, -429.883057))
-                                                    hit(b.UpperTorso)
-                                                    equip_tool()
-                                                    enable_buso()
-                                                    disable_seat()
-                                                    status_label:Refresh("Attacking Factory ")
-                                            end)
-                                        until _G.Setting.Enabled == false or not b.Parent or b.Humanoid.Health <= 0
-                                        delayTask("Factory")
-                                    end
-                                end
-                            else
-                                farming = false
-                                disable_seat()
-                                tp(CFrame.new(-372.479919, 142.649261, 250.736328, 0.990156472, -8.74954083e-08, 0.139964879, 9.28591817e-08, 1, -3.17916289e-08, -0.139964879, 4.4475712e-08, 0.990156472))
-                                hop()
-                                if not is_hopping then
-                                    task.spawn(function()
-                                        for i=1,3 do
-                                            task.wait(.3)
-                                        status_label:Refresh("Waiting"..string.rep("." , i).."\n".."Time after joined server: "..tostring(math.round(time()))..'s')
-                                        end
-                                    end)
-                                else
-                                    status_label:Refresh(hop_counting_time)
-                                end
-                            end
-                        end --- Sea3
-                        if Sea == 3 then
-                            local wait_location = CFrame.new(-5140.06445, 316.5, -3001.552)
-                            if (wait_location.Position - character().HumanoidRootPart.Position).Magnitude > 1000 then
-                                game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("requestEntrance", Vector3.new(- 5075.50927734375, 314.5155029296875, - 3150.0224609375))
-                                repeat task.wait()
-                                    disable_seat()
-                                    tp(wait_location)
-                                    status_label:Refresh("Tp to Castle on the sea to check raid mobs")
-                                until (wait_location.Position - character().HumanoidRootPart.Position).Magnitude <= 1000 or not _G.Setting.Enabled 
-                                task.wait(0.5)
-                            end
-                            
-                            local enemies = workspace.Enemies:GetChildren()
-                            if #enemies > 0 then
-                                for a,b in pairs(enemies) do
-                                    if not b:GetAttribute("IsBoat") and b:FindFirstChild('Humanoid') and b.Humanoid.Health > 0 then
-                                        if (b.HumanoidRootPart.Position-character().HumanoidRootPart.Position).Magnitude <= 1000 then
-                                            repeat task.wait(1e-9)
-                                                pcall(function()
-                                                    farming = true
-                                                    set_property()
-                                                    equip_tool()
-                                                    enable_buso()
-                                                    disable_seat()
-                                                    b.Humanoid.WalkSpeed = 0
-                                                    b.Humanoid.JumpPower = 0
-                                                    hit(b.UpperTorso)
-                                                    if b.HumanoidRootPart:FindFirstChild('TankyParticles') then
-                                                        tp(b.HumanoidRootPart.CFrame * CFrame.new(0, -20, 0),_G.Setting.InstantTp)
-                                                    else
-                                                        tp(b.HumanoidRootPart.CFrame * CFrame.new(0, -20, 0))
-                                                    end
-                                                    status_label:Refresh("Attacking Pirate Raid ")
-                                                end)
-                                            until _G.Setting.Enabled == false or not b.Parent or b.Humanoid.Health <= 0
-                                            if not b.HumanoidRootPart:FindFirstChild('TankyParticles') then
-                                                tp(wait_location * CFrame.new(0,-50,0))
-                                                else
-                                                delayTask("PirateRaid")
-                                            end
-                                        end
-                                    end
-                                end
-                            else
-                                farming = false
-                                disable_seat()
-                                tp(wait_location)
-                                hop()
-                                if not is_hopping then
-                                    task.spawn(function()
-                                        for i=1,3 do
-                                            task.wait(.3)
-                                            status_label:Refresh("Waiting"..string.rep("." , i).."\n".."Time after joined server: "..tostring(math.round(time()))..'s')
-                                        end
-                                    end)
-                                else
-                                    status_label:Refresh(hop_counting_time)
-                                end  
-                            end
-                        end--Sea1
-                        if Sea == 1 then
-                            farming = false
-                            disable_seat()
-                            hop()
-                            if not is_hopping then
-                                task.spawn(function()
-                                    for i=1,3 do
-                                        task.wait(.3)
-                                        status_label:Refresh("Waiting"..string.rep("." , i).."\n".."Time after joined server: "..tostring(math.round(time()))..'s')
-                                    end
-                                end)
-                            else
-                                status_label:Refresh(hop_counting_time)
-                            end  
-                        end
-                    end
+           if sf.Enabled then
+                if Sea == 1 then
+                    auto_fruit_sea1()
+                elseif Sea == 2 then
+                    auto_fruit_sea2()
+                elseif Sea == 3 then
+                    auto_fruit_sea3()
                 end
             end
         end
@@ -639,69 +751,30 @@ function start_main_farm()
 end
 
 ------------------------------------------------- FruitNotifier
-if _G.Setting.Webhook.Enable then
-
-    function getFruitWorkspace(instance) -- Check Fruit tu nhien va fruit drop
+function get_dropped_fruit(instance) -- Check Fruit tu nhien va fruit drop
+if sf.Webhook.Enable then
         if instance:FindFirstChild("Fruit") and instance:FindFirstChild('EatRemote') then -- check xem phai fruit da drop ko
             createTag(instance , "FruitSource", "DroppedFruit")
         end
     end
+end
 
-    function checkFruitOrigin(FruitName)
+function checkFruitOrigin(FruitName)
+    if sf.Webhook.Enable then
         task.wait(0.2)
-            print('checking.'..FruitName.Name)
-            if FruitName:FindFirstChild("Fruit") and not FruitName:GetAttribute("Notify") then
-                for i,v in pairs(fruitType) do
-                    if v == true then
-                        createTag(FruitName, "Notify", true) -- check may cai con lai
-                        return sendJson("NewFruit", {Name = (FruitName.Name) , Source = i} ) ,          print((FruitName.Name)..' from: '..i)
-                    end
-                end
-                if FruitName:GetAttribute("FruitSource") == "DroppedFruit" then -- check fruit drop
-                    createTag(FruitName, "Notify", true)
-                    return sendJson("NewFruit", {Name = (FruitName.Name) , Source = "DroppedFruit"} ) , print((FruitName.Name).." duoc drop")
+        if FruitName:FindFirstChild("Fruit") and not FruitName:GetAttribute("Notify") then
+            for i,v in pairs(fruitType) do
+                if v == true then
+                    createTag(FruitName, "Notify", true) -- check may cai con lai
+                    return sendJson("NewFruit", {Name = (FruitName.Name) , Source = i} ) ,          print((FruitName.Name)..' from: '..i)
                 end
             end
+            if FruitName:GetAttribute("FruitSource") == "DroppedFruit" then -- check fruit drop
+                createTag(FruitName, "Notify", true)
+                return sendJson("NewFruit", {Name = (FruitName.Name) , Source = "DroppedFruit"} ) , print((FruitName.Name).." duoc drop")
+            end
+        end
     end
-    -- local characterConnection
-    -- local backpackConnection
-
-    -- function connectChildAdded()
-    --     if characterConnection then
-    --         characterConnection:Disconnect()
-    --     end
-    --     if backpackConnection then
-    --         backpackConnection:Disconnect()
-    --     end
-        
-    --     local character = Player.Character
-    --     if character then
-    --         characterConnection = character.ChildAdded:Connect(checkFruitOrigin)
-    --     end
-
-    --     local backpack = Player.Backpack
-    --     if backpack then
-    --         backpackConnection = backpack.ChildAdded:Connect(checkFruitOrigin)
-    --     end
-    -- end
-
-    -- Player.CharacterAdded:Connect(function()
-    --     connectChildAdded()
-    -- end)
-
-    -- if Player.Character then
-    --     connectChildAdded()
-    -- end
-
-
-    for i,v in pairs(workspace:GetChildren()) do -- First check
-        getFruitWorkspace(v)
-    end
-    -- workspace.ChildAdded:Connect(function(instance)
-    --     getFruitWorkspace(instance)
-    -- end)
-    print('Loaded Fruit Notifier v1.01')
-
 end
 
 ------------- UI
@@ -719,17 +792,26 @@ status_label = lbls:Label("Shin dep trai",Color3.fromRGB(255, 204, 255))
 local mainui = win:Server("Main", "http://www.roblox.com/asset/?id=6031075938")
 local channel_mainui = mainui:Channel("Auto Farm")
 
-channel_mainui:Toggle("Auto Farm Fruit", _G.Setting.Enabled, function(bool)
-    _G.Setting.Enabled = bool
+channel_mainui:Toggle("Auto Farm Fruit", sf.Enabled, function(bool)
+    sf.Enabled = bool
     if not bool then
         task.wait(0.5)
         stop_tween()
     end
 end)
 
-channel_mainui:Toggle("White Screen", _G.Setting.WhiteScreen, function(bool)
-    _G.Setting.WhiteScreen = bool
+channel_mainui:Toggle("White Screen", sf.WhiteScreen, function(bool)
+    sf.WhiteScreen = bool
     RunService:Set3dRenderingEnabled(not bool)
+end)
+
+local input_jobid = ""
+channel_mainui:Textbox("Job Id", "Shin dep trai vkl",  false,  function(t)       
+    input_jobid = t
+end)
+
+channel_mainui:Button("Join server with input job id", function()
+    print(input_jobid)
 end)
 
 local sea_teleport_remote = {
@@ -750,34 +832,52 @@ local setting_mainui = mainui:Channel("Settings")
 
 setting_mainui:Dropdown("Weapon to attack", {"Melee", "Blox Fruit ( Fruit M1 )", "Sword"}, function(bool)
     if bool == "Blox Fruit ( Fruit M1 )" then
-        _G.Setting.WeaponToAttack = "FruitM1"
+        sf.WeaponToAttack = "FruitM1"
     else
-        _G.Setting.WeaponToAttack = bool
+        sf.WeaponToAttack = bool
     end
 end)
 
-setting_mainui:Toggle("Skip 1m Fruits", _G.Setting.SkipUnder1mFruit, function(bool)
-    _G.Setting.SkipUnder1mFruit = bool
+setting_mainui:Toggle("Random fruit", sf.RandomFruit, function(bool)
+    sf.RandomFruit = bool
 end)
 
-setting_mainui:Toggle("Skip full storage fruit", _G.Setting.SkipFullFruit, function(bool)
-    _G.Setting.SkipFullFruit = bool
+setting_mainui:Toggle("Hop Server", sf.HopServer["Enable"], function(bool)
+    sf.HopServer["Enable"] = bool
 end)
 
-setting_mainui:Toggle("Random fruit", _G.Setting.RandomFruit, function(bool)
-    _G.Setting.RandomFruit = bool
+setting_mainui:Toggle("Instant TP (risk)", sf.InstantTp, function(bool)
+    sf.InstantTp = bool
 end)
 
-setting_mainui:Toggle("Hop Server", _G.Setting.HopServer["Enable"], function(bool)
-    _G.Setting.HopServer["Enable"] = bool
+setting_mainui:Toggle("Webhook", sf.Webhook.Enable, function(bool)
+    sf.Webhook.Enable = bool
 end)
 
-setting_mainui:Toggle("Instant TP (risk)", _G.Setting.InstantTp, function(bool)
-    _G.Setting.InstantTp = bool
+setting_mainui:Label("Skip Fruit Options")
+
+setting_mainui:Toggle("Full Storage", sf.SkipFruitSetting.FullStorage, function(bool)
+    sf.SkipFruitSetting.FullStorage = bool
 end)
 
-setting_mainui:Toggle("Webhook", _G.Setting.Webhook.Enable, function(bool)
-    _G.Setting.Webhook.Enable = bool
+setting_mainui:Toggle("Common", sf.SkipFruitSetting.Common, function(bool)
+    sf.SkipFruitSetting.Common = bool
+end)
+
+setting_mainui:Toggle("Uncommon", sf.SkipFruitSetting.Uncommon, function(bool)
+    sf.SkipFruitSetting.Uncommon = bool
+end)
+
+setting_mainui:Toggle("Rare", sf.SkipFruitSetting.Rare, function(bool)
+    sf.SkipFruitSetting.Rare = bool
+end)
+
+setting_mainui:Toggle("Legendary", sf.SkipFruitSetting.Legendary, function(bool)
+    sf.SkipFruitSetting.Legendary = bool
+end)
+
+setting_mainui:Toggle("Mythical", sf.SkipFruitSetting.Mythical, function(bool)
+    sf.SkipFruitSetting.Mythical = bool
 end)
 
 Player.CharacterAdded:Connect(function(char) -- Refresh character với backpack khi player die
@@ -793,11 +893,16 @@ if Player.Character then -- lần đầu
 end
 
 workspace.ChildAdded:Connect(function(instance)
-    updateNaturalFruitNames()
-    getFruitWorkspace(instance)
+    spawn(function()
+    get_natural_fruit_name()
+    get_dropped_fruit(instance)
+    end)
 end)
 
-updateNaturalFruitNames()
+for i,v in pairs(workspace:GetChildren()) do -- First check
+    get_dropped_fruit(v)
+end
+get_natural_fruit_name()
 random_fruit()
 noclip()
 check_tp()
@@ -807,11 +912,9 @@ anti_afk()
 
 for i,v in pairs(workspace:GetChildren()) do
     if v:FindFirstChild('Fruit') then
-        print("Fruit thiet su trong server: "..v.Name.."\n")
+        ingame_notify("Fruit trong server: "..v.Name.."\n")
     end
 end
-print("Loaded Fruit Auto Farm 1.0.1")
-ingame_notify('Enabled Auto Fruit')
 if default_config then
     ingame_notify('Loaded default config')
     else
