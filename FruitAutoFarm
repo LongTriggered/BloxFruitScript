@@ -455,86 +455,86 @@ function hop()
         return
     end
 
-    -- local function serverhop_function() --- inf yield server  hop
-    --     local servers = {}
-    --     local req = http_request({Url = string.format("https://games.roblox.com/v1/games/%d/servers/Public?sortOrder=Desc&limit=100&excludeFullGames=true", game.PlaceId)})
-    --     local body = game:GetService('HttpService'):JSONDecode(req.Body)
+    local function serverhop_function() --- inf yield server  hop
+        local servers = {}
+        local req = http_request({Url = string.format("https://games.roblox.com/v1/games/%d/servers/Public?sortOrder=Desc&limit=100&excludeFullGames=true", game.PlaceId)})
+        local body = game:GetService('HttpService'):JSONDecode(req.Body)
 
-    --     if body and body.data then
-    --         for i, v in next, body.data do
-    --             if type(v) == "table" and tonumber(v.playing) and tonumber(v.maxPlayers) and v.playing < v.maxPlayers and v.id ~= game.JobId then
-    --                 table.insert(servers, 1, v.id)
-    --             end
-    --         end
-    --     end
-
-    --     while #servers > 0 and task.wait(1) do
-    --         game:GetService('TeleportService'):TeleportToPlaceInstance(game.PlaceId, servers[math.random(1, #servers)], game.Players.LocalPlayer)
-    --     end
-    -- end
-
-    local function serverhop_function() --normal server hop
-        local PlaceID = game.PlaceId
-        local AllIDs = {}
-        local foundAnything = ""
-        local actualHour = os.date("!*t").hour
-        local Deleted = false
-        function TPReturner()
-            local Site;
-            if foundAnything == "" then
-                Site = game.HttpService:JSONDecode(game:HttpGet('https://games.roblox.com/v1/games/' .. PlaceID .. '/servers/Public?sortOrder=Asc&limit=100'))
-            else
-                Site = game.HttpService:JSONDecode(game:HttpGet('https://games.roblox.com/v1/games/' .. PlaceID .. '/servers/Public?sortOrder=Asc&limit=100&cursor=' .. foundAnything))
-            end
-            local ID = ""
-            if Site.nextPageCursor and Site.nextPageCursor ~= "null" and Site.nextPageCursor ~= nil then
-                foundAnything = Site.nextPageCursor
-            end
-            local num = 0;
-            for i,v in pairs(Site.data) do
-                local Possible = true
-                ID = tostring(v.id)
-                if tonumber(v.maxPlayers) > tonumber(v.playing) then
-                    for _,Existing in pairs(AllIDs) do
-                        if num ~= 0 then
-                            if ID == tostring(Existing) then
-                                Possible = false
-                            end
-                        else
-                            if tonumber(actualHour) ~= tonumber(Existing) then
-                                local delFile = pcall(function()                                
-                                    AllIDs = {}
-                                    table.insert(AllIDs, actualHour)
-                                end)
-                            end
-                        end
-                        num = num + 1
-                    end
-                    if Possible == true then
-                        table.insert(AllIDs, ID)
-                        wait(.1)
-                        pcall(function()
-                            
-                            wait()
-                            game:GetService("TeleportService"):TeleportToPlaceInstance(PlaceID, ID, game.Players.LocalPlayer)
-                        end)
-                        wait(.1)
-                    end
+        if body and body.data then
+            for i, v in next, body.data do
+                if type(v) == "table" and tonumber(v.playing) and tonumber(v.maxPlayers) and v.playing < v.maxPlayers and v.id ~= game.JobId then
+                    table.insert(servers, 1, v.id)
                 end
             end
         end
-        function Teleport() 
-            while wait(.1) do
-                pcall(function()
-                    TPReturner()
-                    if foundAnything ~= "" then
-                        TPReturner()
-                    end
-                end)
-            end
+
+        while #servers > 0 and task.wait(1) do
+            game:GetService('TeleportService'):TeleportToPlaceInstance(game.PlaceId, servers[math.random(1, #servers)], game.Players.LocalPlayer)
         end
-        Teleport()
     end
+
+    -- local function serverhop_function() --normal server hop
+    --     local PlaceID = game.PlaceId
+    --     local AllIDs = {}
+    --     local foundAnything = ""
+    --     local actualHour = os.date("!*t").hour
+    --     local Deleted = false
+    --     function TPReturner()
+    --         local Site;
+    --         if foundAnything == "" then
+    --             Site = game.HttpService:JSONDecode(game:HttpGet('https://games.roblox.com/v1/games/' .. PlaceID .. '/servers/Public?sortOrder=Asc&limit=100'))
+    --         else
+    --             Site = game.HttpService:JSONDecode(game:HttpGet('https://games.roblox.com/v1/games/' .. PlaceID .. '/servers/Public?sortOrder=Asc&limit=100&cursor=' .. foundAnything))
+    --         end
+    --         local ID = ""
+    --         if Site.nextPageCursor and Site.nextPageCursor ~= "null" and Site.nextPageCursor ~= nil then
+    --             foundAnything = Site.nextPageCursor
+    --         end
+    --         local num = 0;
+    --         for i,v in pairs(Site.data) do
+    --             local Possible = true
+    --             ID = tostring(v.id)
+    --             if tonumber(v.maxPlayers) > tonumber(v.playing) then
+    --                 for _,Existing in pairs(AllIDs) do
+    --                     if num ~= 0 then
+    --                         if ID == tostring(Existing) then
+    --                             Possible = false
+    --                         end
+    --                     else
+    --                         if tonumber(actualHour) ~= tonumber(Existing) then
+    --                             local delFile = pcall(function()                                
+    --                                 AllIDs = {}
+    --                                 table.insert(AllIDs, actualHour)
+    --                             end)
+    --                         end
+    --                     end
+    --                     num = num + 1
+    --                 end
+    --                 if Possible == true then
+    --                     table.insert(AllIDs, ID)
+    --                     wait(.1)
+    --                     pcall(function()
+                            
+    --                         wait()
+    --                         game:GetService("TeleportService"):TeleportToPlaceInstance(PlaceID, ID, game.Players.LocalPlayer)
+    --                     end)
+    --                     wait(.1)
+    --                 end
+    --             end
+    --         end
+    --     end
+    --     function Teleport() 
+    --         while wait(.1) do
+    --             pcall(function()
+    --                 TPReturner()
+    --                 if foundAnything ~= "" then
+    --                     TPReturner()
+    --                 end
+    --             end)
+    --         end
+    --     end
+    --     Teleport()
+    -- end
 
     is_hopping = true
     task.spawn(function()
@@ -932,4 +932,4 @@ if default_config then
     ingame_notify('Loaded provided config')
 end
 
-ingame_notify('Updated Improve teleport')
+ingame_notify('Fixed notifier, improved teleport, SHIN DEP TRAI ')
