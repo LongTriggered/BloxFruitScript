@@ -256,8 +256,10 @@ function tp(targetCFrame, InstantTp)
     -- local direction = (targetPosition - playerPosition).Unit
     local distance = (targetPosition - playerPosition).Magnitude
     local tp_speed = 200
-        if distance <= 45 then
-            tp_speed = 100000
+        if InstantTp then
+            tp_speed = 10000000
+        elseif distance <= 45 then
+            tp_speed = 10000000
         elseif distance < 50 then
             tp_speed = 2000
         elseif distance < 150 then
@@ -588,7 +590,8 @@ function auto_fruit_sea1()
 
             if not v:FindFirstChild("EatRemote") then
                 delayTask("Natural")
-            end            
+            end
+            task.wait(1)
         end
     end
 
@@ -647,7 +650,8 @@ function auto_fruit_sea2()
 
             if not v:FindFirstChild("EatRemote") then
                 delayTask("Natural")
-            end            
+            end         
+            task.wait(1)
         end
     end
 
@@ -718,6 +722,7 @@ function auto_fruit_sea3()
                 if not v:FindFirstChild("EatRemote") then
                     delayTask("Natural")
                 end            
+                task.wait(1)
             end
         end
 
@@ -927,4 +932,4 @@ if default_config then
     ingame_notify('Loaded provided config')
 end
 
-ingame_notify('Fixed no webhook notify for pirateraid/factory ')
+ingame_notify('Updated Improve teleport')
