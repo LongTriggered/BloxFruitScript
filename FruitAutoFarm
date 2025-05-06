@@ -242,14 +242,14 @@ function tp(targetCFrame, InstantTp)
         tweening:Cancel()
     end
 
-    if InstantTp then
-            if tweening then
-                tweening:Cancel()
-                task.wait(1)
-            end
-            character().HumanoidRootPart.CFrame = targetCFrame
-        return
-    end
+    -- if InstantTp then
+    --         if tweening then
+    --             tweening:Cancel()
+    --             task.wait(1)
+    --         end
+    --         character().HumanoidRootPart.CFrame = targetCFrame
+    --     return
+    -- end
 
     local targetPosition = targetCFrame.Position
     local playerPosition = character().HumanoidRootPart.Position
@@ -578,6 +578,11 @@ function auto_fruit_sea1()
                 continue
             end
 
+            local natural = false
+            if not v:FindFirstChild("EatRemote") then
+                natural = true
+            end 
+
             repeat RunService.Heartbeat:wait()
                 pcall(function()
                     tp(v.Handle.CFrame, sf.InstantTp)
@@ -588,7 +593,7 @@ function auto_fruit_sea1()
                 end)
             until not sf.Enabled or not v or v.Parent ~= workspace
 
-            if not v:FindFirstChild("EatRemote") then
+            if natural then
                 delayTask("Natural")
             end
             task.wait(1)
@@ -630,13 +635,17 @@ function auto_fruit_sea2()
             delayTask("Factory")
         end
     end
-
     for _,v in pairs(workspace:GetChildren()) do
         if v:FindFirstChild("Fruit") and v:FindFirstChild('Handle') then
 
             if skip_fruit(v.Name) then
                 continue
             end
+
+            local natural = false
+            if not v:FindFirstChild("EatRemote") then
+                natural = true
+            end 
 
             repeat RunService.Heartbeat:wait()
                 pcall(function()
@@ -648,9 +657,9 @@ function auto_fruit_sea2()
                 end)
             until not sf.Enabled or not v or v.Parent ~= workspace
 
-            if not v:FindFirstChild("EatRemote") then
+            if natural then
                 delayTask("Natural")
-            end         
+            end        
             task.wait(1)
         end
     end
@@ -702,13 +711,18 @@ function auto_fruit_sea3()
             end
         end
     else
-
         for _,v in pairs(workspace:GetChildren()) do
             if v:FindFirstChild("Fruit") and v:FindFirstChild('Handle') then
 
                 if skip_fruit(v.Name) then
                     continue
                 end
+
+                local natural = false
+                if not v:FindFirstChild("EatRemote") then
+                    natural = true
+                end 
+
                 status_label:Refresh("Teleporting to "..v.Name)
                 repeat RunService.Heartbeat:wait()
                     pcall(function()
@@ -719,7 +733,7 @@ function auto_fruit_sea3()
                     end)
                 until not sf.Enabled or not v or v.Parent ~= workspace
 
-                if not v:FindFirstChild("EatRemote") then
+                if natural then
                     delayTask("Natural")
                 end            
                 task.wait(1)
@@ -932,4 +946,4 @@ if default_config then
     ingame_notify('Loaded provided config')
 end
 
-ingame_notify('Fixed notifier, improved teleport, SHIN DEP TRAI ')
+ingame_notify('Fixed notifier, improved teleport, improved notify, SHIN DEP TRAI ')
