@@ -1086,4 +1086,4 @@ if default_config then
     ingame_notify('Loaded provided config')
 end
 
-ingame_notify('Fixed notifier, improved teleport, improved notify, SHIN DEP TRAI ')
+ingame_notify('Fixed notifier, improved teleport, improved notify, SHIN DEP TRAI v1 ')
