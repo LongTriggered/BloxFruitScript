@@ -255,7 +255,7 @@ function tp(targetCFrame, InstantTp)
     if not character():FindFirstChild('Humanoid') or character().Humanoid.Health <= 0 then
         return
     end
-
+    disable_seat()
     if tweening then
         tweening:Cancel()
     end
@@ -478,10 +478,11 @@ function equip_tool()
             if (v.ToolTip == sf.WeaponToAttack) or (sf.WeaponToAttack == "FruitM1" and v.ToolTip == "Blox Fruit") then
                 character():FindFirstChild('Humanoid'):EquipTool(v)
                 currentEquippedWeapon = v
-                return
+                return true
             end
         end
     end
+    return false
 end
 
 local combat_module = require(replicatedstorage.Modules.Net)
@@ -489,6 +490,8 @@ local register_attack = replicatedstorage.Modules.Net:WaitForChild("RE/RegisterA
 local register_hit = combat_module:RemoteEvent("RegisterHit")
 
 function hit(hitPart)
+    if not equip_tool() then return end
+    enable_buso()
     local playerPosition = character().HumanoidRootPart.Position
     if (playerPosition-hitPart.Position).Magnitude <= 60 then
         if sf.WeaponToAttack == "FruitM1" and currentEquippedWeapon then
@@ -638,9 +641,6 @@ function farm_utility(v)
     if v:FindFirstChild('Stun') then
         v.Stun.Value = 1;
     end;
-    equip_tool()
-    enable_buso()
-    disable_seat()
     set_property()
 end
 
@@ -803,6 +803,7 @@ function auto_fruit_sea3()
                             pcall(function()
                                 farming = true               
                                 tp(v.HumanoidRootPart.CFrame * CFrame.new(0, -20, 0))
+                                farm_utility(v)
                                 hit(v.UpperTorso)
                                 status_label:Refresh("Attacking Pirate Raid ")
                             end)
@@ -837,7 +838,7 @@ function auto_fruit_sea3()
                             farming = true
                             disable_seat()
                         end)
-                        RunService.Heartbeat:wait()
+                        task.wait()
                     until not sf.AutoFarmFruitFully or not v or v.Parent ~= workspace
 
                     if natural then
