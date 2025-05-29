@@ -662,11 +662,11 @@ function finding_fruit()
             repeat
                 pcall(function()
                     tp(v.Handle.CFrame, sf.InstantTp)
-                    fire_handle(v.Handle)
+                   -- fire_handle(v.Handle)
                     farming = true
                     disable_seat()
                 end)
-                task.wait()
+                RunService.Heartbeat:wait()
             until not sf.AutoFarmFruitFully or not v or v.Parent ~= workspace
 
             if natural then
@@ -1091,4 +1091,4 @@ if default_config then
     ingame_notify('Loaded provided config')
 end
 
-ingame_notify('Fixed notifier, improved teleport, improved notify, SHIN DEP TRAI V4')
+ingame_notify('Removed Fire Handle')
