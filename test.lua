@@ -16,7 +16,7 @@ _G.Setting    = {
     NoUI                = false,
     WhiteScreen         = false,
     HopServer           = {["Enable"] = false, ["Wait Time"]   = 600},
-    Webhook             = {["Enable"] = true, ["WebhookLink"] = "https://discord.com/api/webhooks/1367473274249805865/WY_Vq2CWvGVW170SdiZUdICnVMx8HBp5ftatWSUxWQgqaND0VSqcU_pgh359TUp_uN1K"}
+    Webhook             = {["Enable"] = true, ["WebhookLink"] = ""}
 }
 if not game:IsLoaded() then
     game.Loaded:Wait()
