@@ -903,6 +903,7 @@ function start_farm_chest()
                     local ChestPosition = Nearest:GetPivot().Position
                     local CFrameTarget = CFrame.new(ChestPosition)
                     tp_stable(CFrameTarget)
+                    character().Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
                 end
             end
 	    end
@@ -1090,4 +1091,4 @@ if default_config then
     ingame_notify('Loaded provided config')
 end
 
-ingame_notify('Fixed notifier, improved teleport, improved notify, SHIN DEP TRAI V3')
+ingame_notify('Fixed notifier, improved teleport, improved notify, SHIN DEP TRAI V4')
