@@ -385,7 +385,7 @@ function createTag(instance, Name, Value)
   end
 
 function fileCreate(filename,table)
-    writefile(Player.Name.. "_" ..filename.. ".json", game:GetService('HttpService'):JSONEncode(table))
+    writefile(Player.Name.. "_" ..filename.. ".json", HttpService:JSONEncode(table))
 end
 
 function sendJson(filename,data)
@@ -395,7 +395,7 @@ function sendJson(filename,data)
     local AvatarUrl = "https://i.imgur.com/OBqZkBq.png" -- Thay bằng URL avatar của bạn
 
     -- Tạo nội dung body của yêu cầu với multipart/form-data
-    local boundary = "------------------------" .. game:GetService("HttpService"):GenerateGUID(false)
+    local boundary = "------------------------" .. HttpService:GenerateGUID(false)
     local body = "--" .. boundary .. "\r\n"
         .. "Content-Disposition: form-data; name=\"file\"; filename=\"" .. Player.Name.. "_" ..filename.. ".json" .. "\"\r\n"
         .. "Content-Type: application/json\r\n\r\n"
@@ -513,7 +513,7 @@ function hop()
     local function serverhop_function() --- inf yield server  hop
         local servers = {}
         local req = http_request({Url = string.format("https://games.roblox.com/v1/games/%d/servers/Public?sortOrder=Desc&limit=100&excludeFullGames=true", game.PlaceId)})
-        local body = game:GetService('HttpService'):JSONDecode(req.Body)
+        local body = HttpService:JSONDecode(req.Body)
 
         if body and body.data then
             for i, v in next, body.data do
@@ -524,7 +524,7 @@ function hop()
         end
 
         while #servers > 0 and task.wait(1) do
-            game:GetService('TeleportService'):TeleportToPlaceInstance(game.PlaceId, servers[math.random(1, #servers)], game.Players.LocalPlayer)
+            TeleportService:TeleportToPlaceInstance(game.PlaceId, servers[math.random(1, #servers)], game.Players.LocalPlayer)
         end
     end
 
@@ -537,9 +537,9 @@ function hop()
     --     function TPReturner()
     --         local Site;
     --         if foundAnything == "" then
-    --             Site = game.HttpService:JSONDecode(game:HttpGet('https://games.roblox.com/v1/games/' .. PlaceID .. '/servers/Public?sortOrder=Asc&limit=100'))
+    --             Site = HttpService:JSONDecode(game:HttpGet('https://games.roblox.com/v1/games/' .. PlaceID .. '/servers/Public?sortOrder=Asc&limit=100'))
     --         else
-    --             Site = game.HttpService:JSONDecode(game:HttpGet('https://games.roblox.com/v1/games/' .. PlaceID .. '/servers/Public?sortOrder=Asc&limit=100&cursor=' .. foundAnything))
+    --             Site = HttpService:JSONDecode(game:HttpGet('https://games.roblox.com/v1/games/' .. PlaceID .. '/servers/Public?sortOrder=Asc&limit=100&cursor=' .. foundAnything))
     --         end
     --         local ID = ""
     --         if Site.nextPageCursor and Site.nextPageCursor ~= "null" and Site.nextPageCursor ~= nil then
@@ -571,7 +571,7 @@ function hop()
     --                     pcall(function()
                             
     --                         wait()
-    --                         game:GetService("TeleportService"):TeleportToPlaceInstance(PlaceID, ID, game.Players.LocalPlayer)
+    --                         TeleportService:TeleportToPlaceInstance(PlaceID, ID, game.Players.LocalPlayer)
     --                     end)
     --                     wait(.1)
     --                 end
@@ -615,7 +615,7 @@ function random_fruit()
             if sf.RandomFruit and sf.AutoFarmFruitFully and not farming then
                 for _, v in pairs(fruitType) do
                     if v == true then
-                        repeat task.wait() until v == false
+                        return
                     end
                 end
                 replicatedstorage.Remotes.CommF_:InvokeServer("Cousin","Buy")
@@ -642,6 +642,54 @@ function farm_utility(v)
         v.Stun.Value = 1;
     end;
     set_property()
+end
+
+function finding_fruit()
+    for _,v in pairs(workspace:GetChildren()) do
+        if v:FindFirstChild("Fruit") and v:FindFirstChild('Handle') then
+
+            if skip_fruit(v.Name) then
+                continue
+            end
+
+            local natural = false
+            if not v:FindFirstChild("EatRemote") then
+                natural = true
+                task.wait(10)
+            end 
+
+            status_label:Refresh("Teleporting to "..v.Name)
+            repeat
+                pcall(function()
+                    tp(v.Handle.CFrame, sf.InstantTp)
+                    fire_handle(v.Handle)
+                    farming = true
+                    disable_seat()
+                end)
+                task.wait()
+            until not sf.AutoFarmFruitFully or not v or v.Parent ~= workspace
+
+            if natural then
+                delayTask("Natural")
+            end            
+            task.wait(1)
+        end
+    end
+    farming = false
+    hop()
+end
+
+function update_label()
+    if not is_hopping or not sf.HopServer["Enable"] then
+        task.spawn(function()
+            for i=1,3 do
+                task.wait(.3)
+                status_label:Refresh("Waiting"..string.rep("." , i).."\n".."Time after joined server: "..tostring(math.round(time()))..'s')
+            end
+        end)
+    else
+        status_label:Refresh(hop_counting_time)
+    end  
 end
 
 function auto_fruit_sea1()
@@ -757,7 +805,7 @@ end
 
 local PirateRaid = false
 task.spawn(newcclosure(function()
-    local ChatFrame = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui"):WaitForChild("Chat").Frame.ChatChannelParentFrame.Frame_MessageLogDisplay.Scroller
+    local ChatFrame = Player.PlayerGui.Chat.Frame.ChatChannelParentFrame.Frame_MessageLogDisplay.Scroller
     ChatFrame.ChildAdded:Connect(function(child)
         task.spawn(function()
             local label = child:FindFirstChild("TextLabel")
@@ -817,48 +865,8 @@ function auto_fruit_sea3()
                 end
             end
         else
-            for _,v in pairs(workspace:GetChildren()) do
-                if v:FindFirstChild("Fruit") and v:FindFirstChild('Handle') then
-
-                    if skip_fruit(v.Name) then
-                        continue
-                    end
-
-                    local natural = false
-                    if not v:FindFirstChild("EatRemote") then
-                        natural = true
-                        task.wait(10)
-                    end 
-
-                    status_label:Refresh("Teleporting to "..v.Name)
-                    repeat
-                        pcall(function()
-                            tp(v.Handle.CFrame, sf.InstantTp)
-                            fire_handle(v.Handle)
-                            farming = true
-                            disable_seat()
-                        end)
-                        task.wait()
-                    until not sf.AutoFarmFruitFully or not v or v.Parent ~= workspace
-
-                    if natural then
-                        delayTask("Natural")
-                    end            
-                    task.wait(1)
-                end
-            end
-            farming = false
-            hop()
-            if not is_hopping or not sf.HopServer["Enable"] then
-                task.spawn(function()
-                    for i=1,3 do
-                        task.wait(.3)
-                        status_label:Refresh("Waiting"..string.rep("." , i).."\n".."Time after joined server: "..tostring(math.round(time()))..'s')
-                    end
-                end)
-            else
-                status_label:Refresh(hop_counting_time)
-            end  
+            finding_fruit()
+            update_label()
         end
     end
 end
@@ -881,11 +889,7 @@ function start_farm_chest()
     task.spawn(function()
         while task.wait() do
             if sf.AutoFarmChest and not farming and not PirateRaid then
-                local Players = game:GetService("Players")
-                local Player = Players.LocalPlayer
-                local Character = Player.Character or Player.CharacterAdded:Wait()
-                local Position = Character:GetPivot().Position
-                local CollectionService = game:GetService("CollectionService")
+                local Position = character():GetPivot().Position
                 local Chests = CollectionService:GetTagged("_ChestTagged")
                 local Distance, Nearest = math.huge
                 for i = 1, #Chests do
@@ -974,7 +978,7 @@ channel_mainui:Textbox("Job Id", "Shin dep trai vkl",  false,  function(t)
 end)
 
 channel_mainui:Button("Join server with input job id", function()
-    game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, input_jobid, Player)
+    TeleportService:TeleportToPlaceInstance(game.PlaceId, input_jobid, Player)
 end)
 
 local sea_teleport_remote = {
@@ -1086,4 +1090,4 @@ if default_config then
     ingame_notify('Loaded provided config')
 end
 
-ingame_notify('Fixed notifier, improved teleport, improved notify, SHIN DEP TRAI v1 ')
+ingame_notify('Fixed notifier, improved teleport, improved notify, SHIN DEP TRAI V3')
