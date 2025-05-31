@@ -1,3 +1,23 @@
+_G.Setting    = {
+    AutoFarmFruitFully       = true,
+    AutoFarmChest       = false,
+    WeaponToAttack      = "Melee", -- "Sword", "Melee", "FruitM1"
+    Team                = "Marines",
+    SkipFruitSetting = {
+        FullStorage     = false,
+        Common          = false,
+        Uncommon        = false,
+        Rare            = false,
+        Legendary       = false,
+        Mythical        = false,
+                        },
+    RandomFruit         = true,
+    InstantTp           = true,
+    NoUI                = false,
+    WhiteScreen         = false,
+    HopServer           = {["Enable"] = false, ["Wait Time"]   = 600},
+    Webhook             = {["Enable"] = true, ["WebhookLink"] = ""}
+}
 if not game:IsLoaded() then
     game.Loaded:Wait()
 end
@@ -1094,4 +1114,4 @@ if default_config then
     ingame_notify('Loaded provided config')
 end
 
-ingame_notify('FIXED ATTACK ')
+ingame_notify('Fixed notifier, improved teleport, improved notify, SHIN DEP TRAI ')
